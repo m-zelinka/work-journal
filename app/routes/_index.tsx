@@ -39,7 +39,7 @@ export default function Component() {
               </p>
             </div>
           ) : (
-            <div className="flex justify-center gap-x-4">
+            <div className="flex justify-center gap-4">
               <Link to="/join" className={buttonVariants()}>
                 Get started
               </Link>
