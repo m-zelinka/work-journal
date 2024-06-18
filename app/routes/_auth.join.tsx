@@ -22,8 +22,8 @@ const schema = z.object({
     .min(3, "Username is too short")
     .max(20, "Username is too long")
     .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Username can only include letters, numbers, dashes, and underscores",
+      /^[a-zA-Z0-9_]+$/,
+      "Username can only include letters, numbers, and underscores",
     )
     // Users can type the username in any case, but we store it in lowercase
     .transform((value) => value.toLowerCase()),
