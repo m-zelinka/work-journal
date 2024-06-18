@@ -28,12 +28,12 @@ const schema = z.object({
     // Users can type the username in any case, but we store it in lowercase
     .transform((value) => value.toLowerCase()),
   first: z
-    .string()
+    .string({ required_error: "First name is required" })
     .trim()
     .min(3, "First name is too short")
     .max(40, "Last name is too long"),
   last: z
-    .string()
+    .string({ required_error: "Last name is required" })
     .trim()
     .min(3, "Last name is too short")
     .max(40, "Last name is too long"),
