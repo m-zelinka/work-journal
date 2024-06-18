@@ -26,7 +26,7 @@ export default function Component() {
         <div className="mt-10">
           {user ? (
             <div className="flex flex-col items-center gap-3">
-              <Link to="me" className={buttonVariants()}>
+              <Link to="/me" className={buttonVariants()}>
                 <span>
                   Continue to your entries <span aria-hidden>→</span>
                 </span>
@@ -40,10 +40,13 @@ export default function Component() {
             </div>
           ) : (
             <div className="flex justify-center gap-x-4">
-              <Link to="join" className={buttonVariants()}>
+              <Link to="/join" className={buttonVariants()}>
                 Get started
               </Link>
-              <Link to="login" className={buttonVariants({ variant: "ghost" })}>
+              <Link
+                to="/login"
+                className={buttonVariants({ variant: "ghost" })}
+              >
                 <span>
                   Log in <span aria-hidden>→</span>
                 </span>
