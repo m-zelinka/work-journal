@@ -1,9 +1,11 @@
+import { cn } from "~/utils/misc";
+
 export function Logo({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 200 200"
       fill="currentColor"
-      className={className}
+      className={cn("text-cyan-600", className)}
       aria-hidden
     >
       <path
