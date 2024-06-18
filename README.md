@@ -1,40 +1,39 @@
-# Welcome to Remix!
+# Work Journal
 
-- 📖 [Remix docs](https://remix.run/docs)
+This project is a simple work journaling app, for daily logging of learnings and doings. It's written in [TypeScript](https://www.typescriptlang.org/), using [Remix](https://remix.run/), [React.js](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/). For database, I'm using [Prisma ORM](https://www.prisma.io/). I've deployed this project on [Fly.io](https://fly.io/).
 
-## Development
+## Get started
 
-Run the dev server:
+1. Clone the repository:
 
-```shellscript
-npm run dev
-```
+   ```sh
+   git clone https://github.com/m-zelinka/work-journal.git
+   ```
 
-## Deployment
+2. Install the dependencies:
 
-First, build your app for production:
+   ```sh
+   npm install
+   ```
 
-```sh
-npm run build
-```
+3. Define required env variables:
 
-Then run the app in production mode:
+   > [!IMPORTANT]
+   > You must define your env vars before the next step.
 
-```sh
-npm start
-```
+   - Copy the template contents in [.env.example](.env.example) to a new file named `.env` and fill all the required fields.
 
-Now you'll need to pick a host to deploy it to.
+4. Run the application in dev mode:
 
-### DIY
+   ```sh
+   npm run dev
+   ```
 
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
+## Goals
 
-Make sure to deploy the output of `npm run build`
+I tried to practice working with [optimistic data](https://remix.run/docs/en/main/discussion/pending-ui#pending-and-optimistic-ui) using Remix.
 
-- `build/server`
-- `build/client`
+## Credits
 
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever css framework you prefer. See the [Vite docs on css](https://vitejs.dev/guide/features.html#css) for more information.
+- App idea from [Bulid UI - Ship an app with Remix](https://buildui.com/courses/ship-an-app-with-remix)
+- Logo from [Shapes](https://shapes.framer.website/)
