@@ -16,10 +16,10 @@ export default function Component() {
       <div className="mx-auto w-full max-w-2xl">
         <Logo className="mx-auto h-11 w-auto" />
         <div className="text-center">
-          <h1 className="mt-10 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          <h1 className="mt-10 text-balance text-4xl font-extrabold tracking-tight lg:text-5xl">
             A better way to organize your learnings and doings
           </h1>
-          <p className="mt-6 text-xl text-muted-foreground">
+          <p className="mt-6 text-pretty text-xl text-muted-foreground">
             Your new daily work journal, helping clear your head.
           </p>
         </div>
