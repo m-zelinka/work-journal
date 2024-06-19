@@ -8,7 +8,9 @@ import {
 } from "@remix-run/node";
 import { useActionData, useFetchers, useLoaderData } from "@remix-run/react";
 import { compareDesc, format, startOfWeek } from "date-fns";
+import { CloudIcon } from "lucide-react";
 import { Fragment } from "react";
+import { useSpinDelay } from "spin-delay";
 import { Empty } from "~/components/empty";
 import { EntryForm, schema as entryFormSchema } from "~/components/entry-form";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -95,7 +97,10 @@ export default function Component() {
       {isUserOwner ? (
         <Card>
           <CardHeader>
-            <CardTitle>New entry</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>New entry</CardTitle>
+              <EntrySavingIndicator />
+            </div>
           </CardHeader>
           <CardContent>
             <EntryForm lastResult={actionData?.result} />
@@ -118,6 +123,39 @@ export default function Component() {
       </div>
     </>
   );
+}
+
+function EntrySavingIndicator() {
+  const pendingEntries = usePendingEntries();
+  const showSavingIndicator = useSpinDelay(pendingEntries.length > 0);
+
+  if (!showSavingIndicator) {
+    return;
+  }
+
+  return <CloudIcon className="size-5 animate-pulse text-gray-400" />;
+}
+
+function usePendingEntries() {
+  type PendingEntryFetcher = ReturnType<typeof useFetchers>[number] & {
+    formData: FormData;
+  };
+
+  return useFetchers()
+    .filter(
+      (fetcher): fetcher is PendingEntryFetcher =>
+        fetcher.formData?.get("intent") === "createEntry",
+    )
+    .map((fetcher) => {
+      const id = String(fetcher.formData.get("id"));
+      const date = String(fetcher.formData.get("date"));
+      const type = String(fetcher.formData.get("type"));
+      const text = String(fetcher.formData.get("text"));
+      const link = String(fetcher.formData.get("link"));
+      const entry: Entry = { id, date, type, text, link };
+
+      return entry;
+    });
 }
 
 function EntryList({ entries }: { entries: Array<Entry> }) {
@@ -202,28 +240,6 @@ function EntryList({ entries }: { entries: Array<Entry> }) {
       ))}
     </ul>
   );
-}
-
-function usePendingEntries() {
-  type PendingEntryFetcher = ReturnType<typeof useFetchers>[number] & {
-    formData: FormData;
-  };
-
-  return useFetchers()
-    .filter(
-      (fetcher): fetcher is PendingEntryFetcher =>
-        fetcher.formData?.get("intent") === "createEntry",
-    )
-    .map((fetcher) => {
-      const id = String(fetcher.formData.get("id"));
-      const date = String(fetcher.formData.get("date"));
-      const type = String(fetcher.formData.get("type"));
-      const text = String(fetcher.formData.get("text"));
-      const link = String(fetcher.formData.get("link"));
-      const entry: Entry = { id, date, type, text, link };
-
-      return entry;
-    });
 }
 
 function EntryListItem({ entry }: { entry: Entry }) {
