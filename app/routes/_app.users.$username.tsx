@@ -6,7 +6,7 @@ import {
   type MetaFunction,
   type SerializeFrom,
 } from "@remix-run/node";
-import { useFetcher, useFetchers, useLoaderData } from "@remix-run/react";
+import { Form, useFetcher, useFetchers, useLoaderData } from "@remix-run/react";
 import { compareDesc, format, startOfWeek } from "date-fns";
 import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Fragment } from "react";
@@ -38,11 +38,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
   const owner = await prisma.user.findUnique({
-    select: {
-      id: true,
-      first: true,
-      last: true,
-    },
+    select: { id: true, first: true, last: true },
     where: { username: params.username },
   });
   invariantResponse(
@@ -54,7 +50,14 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const ownerIsSignedIn = userId === owner.id;
 
   const ownerEntries = await prisma.entry.findMany({
-    select: { id: true, date: true, type: true, text: true, link: true },
+    select: {
+      id: true,
+      date: true,
+      type: true,
+      privacy: true,
+      text: true,
+      link: true,
+    },
     where: {
       user: { username: params.username },
       privacy: ownerIsSignedIn ? undefined : "everyone",
@@ -78,6 +81,7 @@ export async function action({ request }: ActionFunctionArgs) {
     );
 
     const entry = await prisma.entry.findUnique({
+      select: { id: true },
       where: { id: entryId, userId },
     });
     invariantResponse(entry, `No entry with the id "${entryId}" exists`, {
@@ -85,6 +89,7 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     await prisma.entry.delete({
+      select: { id: true },
       where: { id: entry.id, userId },
     });
 
@@ -165,9 +170,10 @@ function usePendingEntries() {
       const id = String(fetcher.formData.get("id"));
       const date = String(fetcher.formData.get("date"));
       const type = String(fetcher.formData.get("type"));
+      const privacy = String(fetcher.formData.get("privacy"));
       const text = String(fetcher.formData.get("text"));
       const link = String(fetcher.formData.get("link"));
-      const entry: Entry = { id, date, type, text, link };
+      const entry: Entry = { id, date, type, privacy, text, link };
 
       return entry;
     });
@@ -292,10 +298,12 @@ function EntryListItem({
       </p>
       {showToolbar ? (
         <div className="-my-1 flex gap-3 opacity-0 focus-within:opacity-100 group-hover:opacity-100">
-          <Button variant="ghost" size="icon-xs">
-            <PencilIcon className="size-4" />
-            <span className="sr-only">Edit</span>
-          </Button>
+          <Form action={`entries/${entry.id}/edit`}>
+            <Button variant="ghost" size="icon-xs">
+              <PencilIcon className="size-4" />
+              <span className="sr-only">Edit</span>
+            </Button>
+          </Form>
           <deleteFetcher.Form
             method="POST"
             onSubmit={(event) => {

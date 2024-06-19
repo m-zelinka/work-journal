@@ -7,8 +7,13 @@ import {
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, useActionData, useSubmit } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useNavigation,
+  useSubmit,
+} from "@remix-run/react";
 import { format } from "date-fns";
 import { LinkIcon } from "lucide-react";
 import { useRef } from "react";
@@ -29,6 +34,7 @@ import { Textarea } from "~/components//ui/textarea";
 import { ErrorList } from "~/components/forms";
 import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
+import type { Entry } from "./_app.users.$username";
 
 const typeOptions = {
   work: "Work",
@@ -42,6 +48,12 @@ const privacyOptions = {
 } as const;
 
 export const schema = z.object({
+  id: z
+    .string()
+    .trim()
+    .uuid("Id is invalid")
+    .optional()
+    .transform((arg) => arg || null),
   date: z.coerce
     .date({ required_error: "Date is required" })
     .transform((arg) => arg.toISOString()),
@@ -68,7 +80,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const userId = await requireUserId(request);
 
   const formData = await request.formData();
-
   const submission = parseWithZod(formData, { schema });
 
   if (submission.status !== "success") {
@@ -78,14 +89,42 @@ export async function action({ request }: ActionFunctionArgs) {
     );
   }
 
-  const entry = submission.value;
+  const { id: entryId, date, type, privacy, text, link } = submission.value;
 
   if (formData.get("intent") === "createEntry") {
     await prisma.entry.create({
-      data: { ...entry, user: { connect: { id: userId } } },
+      select: { id: true },
+      data: {
+        date,
+        type,
+        privacy,
+        text,
+        link,
+        user: { connect: { id: userId } },
+      },
     });
 
     return json({ result: submission.reply() });
+  }
+
+  if (entryId && formData.get("intent") === "editEntry") {
+    const existingEntry = await prisma.entry.findUnique({
+      where: { id: entryId, userId },
+    });
+    invariantResponse(
+      existingEntry,
+      `No entry with the id "${entryId}" exists`,
+      {
+        status: 404,
+      },
+    );
+
+    await prisma.entry.update({
+      data: { date, type, privacy, text, link },
+      where: { id: entryId, userId },
+    });
+
+    return redirect("/me");
   }
 
   invariantResponse(
@@ -94,16 +133,19 @@ export async function action({ request }: ActionFunctionArgs) {
   );
 }
 
-export function EntryEditor() {
+export function EntryEditor({ entry }: { entry?: Entry }) {
+  const editMode = Boolean(entry);
+
   const actionData = useActionData<typeof action>();
 
   const submit = useSubmit();
 
   const [form, fields] = useForm({
     defaultValue: {
-      type: Object.keys(typeOptions)[0],
-      date: format(new Date(), "yyyy-MM-dd"),
-      privacy: Object.keys(privacyOptions)[0],
+      ...entry,
+      date: format(entry?.date ?? new Date(), "yyyy-MM-dd"),
+      type: entry?.type ?? Object.keys(typeOptions)[0],
+      privacy: entry?.privacy ?? Object.keys(privacyOptions)[0],
     },
     constraint: getZodConstraint(schema),
     lastResult: actionData?.result,
@@ -111,6 +153,10 @@ export function EntryEditor() {
     shouldRevalidate: "onInput",
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
     onSubmit: (event, context) => {
+      if (editMode) {
+        return;
+      }
+
       event.preventDefault();
 
       const submission = parseWithZod(context.formData, { schema });
@@ -120,7 +166,6 @@ export function EntryEditor() {
       }
 
       const entry = submission.value;
-
       submit(
         {
           intent: "createEntry",
@@ -139,6 +184,9 @@ export function EntryEditor() {
       clearFormInputs();
     },
   });
+
+  const navigation = useNavigation();
+  const savingEdit = navigation.formData?.get("intent") === "editEntry";
 
   const textRef = useRef<HTMLTextAreaElement>(null);
   const linkRef = useRef<HTMLInputElement>(null);
@@ -159,7 +207,14 @@ export function EntryEditor() {
       action="/resources/entry-editor"
       {...getFormProps(form)}
     >
-      <input type="hidden" name="intent" value="createEntry" />
+      {editMode ? (
+        <>
+          <input type="hidden" name="intent" value="editEntry" />
+          <input {...getInputProps(fields.id, { type: "hidden" })} />
+        </>
+      ) : (
+        <input type="hidden" name="intent" value="createEntry" />
+      )}
       <div className="grid gap-4">
         <div className="grid gap-4 md:grid-cols-3">
           <div className="grid gap-2">
@@ -257,8 +312,8 @@ export function EntryEditor() {
           <ErrorList id={fields.link.errorId} errors={fields.link.errors} />
         </div>
         <div className="md:col-span-full">
-          <Button type="submit" className="w-full">
-            Save
+          <Button type="submit" disabled={savingEdit} className="w-full">
+            {savingEdit ? "Saving..." : "Save"}
           </Button>
         </div>
       </div>
