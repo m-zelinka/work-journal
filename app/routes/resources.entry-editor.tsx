@@ -43,8 +43,8 @@ const typeOptions = {
 } as const;
 
 const privacyOptions = {
-  everyone: "Everyone",
-  owner: "Owner",
+  everyone: "Everyone can see",
+  owner: "Only for me",
 } as const;
 
 export const schema = z.object({
@@ -310,6 +310,9 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
             />
           </div>
           <ErrorList id={fields.link.errorId} errors={fields.link.errors} />
+        </div>
+        <div className="md:col-span-full">
+          <ErrorList id={form.errorId} errors={form.errors} />
         </div>
         <div className="md:col-span-full">
           <Button type="submit" disabled={savingEdit} className="w-full">

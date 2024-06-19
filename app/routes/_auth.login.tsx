@@ -123,6 +123,7 @@ export default function Component() {
                 errors={fields.password.errors}
               />
             </div>
+            <ErrorList id={form.errorId} errors={form.errors} />
             <Button type="submit" className="w-full">
               Login
             </Button>
