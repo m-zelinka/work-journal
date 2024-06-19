@@ -1,4 +1,4 @@
-import { cn } from "~/utils/misc";
+import { cx } from "~/utils/misc";
 
 export type ListOfErrors = Array<string | null | undefined> | null | undefined;
 
@@ -18,7 +18,7 @@ export function ErrorList({
   }
 
   return (
-    <ul id={id} className={cn("grid gap-1", className)}>
+    <ul id={id} className={cx("grid gap-1", className)}>
       {errorsToShow.map((error) => (
         <li key={error} className="text-[0.8rem] text-destructive">
           {error}

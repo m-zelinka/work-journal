@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
-import { cn } from "~/utils/misc";
+import { cx } from "~/utils/misc";
 import { useOptionalUser } from "~/utils/user";
 
 export default function Component() {
@@ -31,8 +31,8 @@ export default function Component() {
               to={item.to}
               end
               className={({ isActive }) =>
-                cn(
-                  "font-medium text-sm",
+                cx(
+                  "text-sm font-medium",
                   isActive
                     ? "text-foreground"
                     : "text-muted-foreground transition-colors hover:text-foreground",
@@ -62,7 +62,7 @@ export default function Component() {
                   key={item.name}
                   to={item.to}
                   className={({ isActive }) =>
-                    cn(
+                    cx(
                       "text-lg font-medium",
                       isActive
                         ? "text-foreground"
