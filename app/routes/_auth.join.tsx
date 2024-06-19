@@ -59,10 +59,10 @@ export async function action({ request }: ActionFunctionArgs) {
   const redirectTo = composeSafeRedirectUrl(url.searchParams.get("redirectTo"));
 
   const formData = await request.formData();
-
   const submission = await parseWithZod(formData, {
     schema: schema.superRefine(async (arg, ctx) => {
       const emailTaken = await prisma.user.findUnique({
+        select: { id: true },
         where: { email: arg.email },
       });
 
@@ -77,6 +77,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       const usernameTaken = await prisma.user.findUnique({
+        select: { id: true },
         where: { username: arg.username },
       });
 

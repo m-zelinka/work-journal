@@ -38,7 +38,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const redirectTo = composeSafeRedirectUrl(url.searchParams.get("redirectTo"));
 
   const formData = await request.formData();
-
   const submission = await parseWithZod(formData, {
     schema: schema.transform(async (arg, ctx) => {
       const user = await verifyLogin(arg.email, arg.password);
