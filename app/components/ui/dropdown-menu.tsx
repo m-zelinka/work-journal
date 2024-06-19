@@ -1,9 +1,5 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import {
-  CheckIcon,
-  ChevronRightIcon,
-  DotFilledIcon,
-} from "@radix-ui/react-icons";
+import { CheckIcon, ChevronRightIcon, CircleDotIcon } from "lucide-react";
 import {
   forwardRef,
   type ComponentPropsWithoutRef,
@@ -91,7 +87,7 @@ export const DropdownMenuItem = forwardRef<
     ref={ref}
     className={cx(
       "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      inset ? "pl-8":"",
+      inset ? "pl-8" : "",
       className,
     )}
     {...props}
@@ -137,7 +133,7 @@ export const DropdownMenuRadioItem = forwardRef<
   >
     <span className="absolute left-2 flex size-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <DotFilledIcon className="size-4 fill-current" />
+        <CircleDotIcon className="size-4 fill-current" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -155,7 +151,7 @@ export const DropdownMenuLabel = forwardRef<
     ref={ref}
     className={cx(
       "px-2 py-1.5 text-sm font-semibold",
-      inset ? "pl-8":"",
+      inset ? "pl-8" : "",
       className,
     )}
     {...props}

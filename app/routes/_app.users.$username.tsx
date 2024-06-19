@@ -8,11 +8,12 @@ import {
 } from "@remix-run/node";
 import { useActionData, useFetchers, useLoaderData } from "@remix-run/react";
 import { compareDesc, format, startOfWeek } from "date-fns";
-import { CloudIcon } from "lucide-react";
+import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Fragment } from "react";
 import { useSpinDelay } from "spin-delay";
 import { Empty } from "~/components/empty";
 import { EntryForm, schema as entryFormSchema } from "~/components/entry-form";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { getUserId, requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
@@ -113,7 +114,7 @@ export default function Component() {
       )}
       <div className="mt-8">
         {ownerEntries.length ? (
-          <EntryList entries={ownerEntries} />
+          <EntryList entries={ownerEntries} showToolbar={isUserOwner} />
         ) : (
           <Empty
             title="No entries"
@@ -158,7 +159,13 @@ function usePendingEntries() {
     });
 }
 
-function EntryList({ entries }: { entries: Array<Entry> }) {
+function EntryList({
+  entries,
+  showToolbar,
+}: {
+  entries: Array<Entry>;
+  showToolbar?: boolean;
+}) {
   const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
 
   // Merge pending and existing entries
@@ -229,7 +236,11 @@ function EntryList({ entries }: { entries: Array<Entry> }) {
                   </p>
                   <ul className="mt-3 grid gap-2">
                     {entries.map((entry) => (
-                      <EntryListItem key={entry.id} entry={entry} />
+                      <EntryListItem
+                        key={entry.id}
+                        entry={entry}
+                        showToolbar={showToolbar}
+                      />
                     ))}
                   </ul>
                 </Fragment>
@@ -242,6 +253,38 @@ function EntryList({ entries }: { entries: Array<Entry> }) {
   );
 }
 
-function EntryListItem({ entry }: { entry: Entry }) {
-  return <li className="text-sm text-muted-foreground">{entry.text}</li>;
+function EntryListItem({
+  entry,
+  showToolbar,
+}: {
+  entry: Entry;
+  showToolbar?: boolean;
+}) {
+  return (
+    <li className="group flex items-center gap-4">
+      <p className="text-sm text-muted-foreground">
+        {entry.text}{" "}
+        {entry.link ? (
+          <a
+            href={entry.link}
+            className="inline-block text-sm text-foreground underline"
+          >
+            Link
+          </a>
+        ) : null}
+      </p>
+      {showToolbar ? (
+        <div className="-my-1 flex gap-3 opacity-0 focus-within:opacity-100 group-hover:opacity-100">
+          <Button variant="ghost" size="icon-xs">
+            <PencilIcon className="size-4" />
+            <span className="sr-only">Edit</span>
+          </Button>
+          <Button variant="ghost" size="icon-xs">
+            <Trash2Icon className="size-4" />
+            <span className="sr-only">Delete</span>
+          </Button>
+        </div>
+      ) : null}
+    </li>
+  );
 }
