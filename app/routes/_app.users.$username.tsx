@@ -6,13 +6,13 @@ import {
   type LoaderFunctionArgs,
   type SerializeFrom,
 } from "@remix-run/node";
-import { useActionData, useLoaderData } from "@remix-run/react";
+import { useActionData, useFetchers, useLoaderData } from "@remix-run/react";
 import { compareDesc, format, startOfWeek } from "date-fns";
 import { Fragment } from "react";
 import { Empty } from "~/components/empty";
 import { EntryForm, schema as entryFormSchema } from "~/components/entry-form";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { requireUserId } from "~/utils/auth.server";
+import { getUserId, requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { cx } from "~/utils/misc";
 import { useOptionalUser } from "~/utils/user";
@@ -21,7 +21,7 @@ type LoaderData = SerializeFrom<typeof loader>;
 export type Entry = LoaderData["ownerEntries"][number];
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await getUserId(request);
 
   const owner = await prisma.user.findUnique({
     select: {
@@ -123,6 +123,14 @@ export default function Component() {
 function EntryList({ entries }: { entries: Array<Entry> }) {
   const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
 
+  // Merge pending and existing entries
+  const pendingEntries = usePendingEntries();
+  for (const pendingEntry of pendingEntries) {
+    const entry = entriesById.get(pendingEntry.id);
+    const merged = entry ? { ...entry, ...pendingEntry } : pendingEntry;
+    entriesById.set(pendingEntry.id, merged);
+  }
+
   const entriesToShow = [...entriesById.values()].sort((a, b) =>
     compareDesc(a.date, b.date),
   );
@@ -166,7 +174,7 @@ function EntryList({ entries }: { entries: Array<Entry> }) {
             <div className="w-px border-l" />
           </div>
           <div
-            className="relative flex size-6 flex-none items-center justify-center"
+            className="relative flex size-6 flex-none items-center justify-center bg-background"
             aria-hidden
           >
             <div className="size-1.5 rounded-full border border-muted-foreground" />
@@ -194,6 +202,28 @@ function EntryList({ entries }: { entries: Array<Entry> }) {
       ))}
     </ul>
   );
+}
+
+function usePendingEntries() {
+  type PendingEntryFetcher = ReturnType<typeof useFetchers>[number] & {
+    formData: FormData;
+  };
+
+  return useFetchers()
+    .filter(
+      (fetcher): fetcher is PendingEntryFetcher =>
+        fetcher.formData?.get("intent") === "createEntry",
+    )
+    .map((fetcher) => {
+      const id = String(fetcher.formData.get("id"));
+      const date = String(fetcher.formData.get("date"));
+      const type = String(fetcher.formData.get("type"));
+      const text = String(fetcher.formData.get("text"));
+      const link = String(fetcher.formData.get("link"));
+      const entry: Entry = { id, date, type, text, link };
+
+      return entry;
+    });
 }
 
 function EntryListItem({ entry }: { entry: Entry }) {

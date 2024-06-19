@@ -6,9 +6,10 @@ import {
   type SubmissionResult,
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { Form } from "@remix-run/react";
+import { Form, useSubmit } from "@remix-run/react";
 import { format } from "date-fns";
 import { LinkIcon } from "lucide-react";
+import { useRef } from "react";
 import { z } from "zod";
 import { ErrorList } from "./forms";
 import { Button } from "./ui/button";
@@ -64,6 +65,8 @@ export function EntryForm({
 }: {
   lastResult?: SubmissionResult | null;
 }) {
+  const submit = useSubmit();
+
   const [form, fields] = useForm({
     defaultValue: {
       type: Object.keys(typeOptions)[0],
@@ -75,7 +78,48 @@ export function EntryForm({
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
+    onSubmit: (event, context) => {
+      event.preventDefault();
+
+      const submission = parseWithZod(context.formData, { schema });
+
+      if (submission.status !== "success") {
+        return;
+      }
+
+      const entry = submission.value;
+
+      submit(
+        {
+          intent: "createEntry",
+          ...entry,
+          id: window.crypto.randomUUID(),
+          link: entry.link || "",
+        },
+        {
+          method: context.method,
+          action: context.action,
+          navigate: false,
+          unstable_flushSync: true,
+        },
+      );
+
+      clearFormInputs();
+    },
   });
+
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const linkRef = useRef<HTMLInputElement>(null);
+  const clearFormInputs = () => {
+    if (textRef.current) {
+      textRef.current.value = "";
+      textRef.current.focus();
+    }
+
+    if (linkRef.current) {
+      linkRef.current.value = "";
+    }
+  };
 
   return (
     <Form method="POST" {...getFormProps(form)}>
@@ -142,6 +186,7 @@ export function EntryForm({
             Entry
           </Label>
           <Textarea
+            ref={textRef}
             onKeyDown={(event) => {
               // Submit form on enter keydown event
               if (event.key === "Enter") {
@@ -167,6 +212,7 @@ export function EntryForm({
           <div className="relative">
             <LinkIcon className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
             <Input
+              ref={linkRef}
               placeholder="Optional link"
               className="pl-8"
               {...getInputProps(fields.link, { type: "url" })}

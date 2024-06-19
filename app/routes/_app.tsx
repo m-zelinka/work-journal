@@ -28,7 +28,7 @@ export default function Component() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <header className="sticky top-0 flex h-16 items-center gap-4 border-b px-4 md:px-6">
+      <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
         <nav className="hidden md:flex md:items-center md:gap-5 lg:gap-6">
           <Logo className="h-6 w-auto" />
           {navigation.map((item) => (
@@ -95,7 +95,7 @@ export default function Component() {
           )}
         </div>
       </header>
-      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
         <div className="mx-auto w-full max-w-3xl flex-1">
           <Outlet />
         </div>
