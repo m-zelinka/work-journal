@@ -12,6 +12,7 @@ import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Fragment } from "react";
 import { useSpinDelay } from "spin-delay";
 import { Empty } from "~/components/empty";
+import { GeneralErrorBoundary } from "~/components/error-boundary";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { getUserId, requireUserId } from "~/utils/auth.server";
@@ -100,6 +101,10 @@ export async function action({ request }: ActionFunctionArgs) {
     false,
     `Invalid intent: ${formData.get("intent") ?? "Missing"}`,
   );
+}
+
+export function ErrorBoundary() {
+  return <GeneralErrorBoundary />;
 }
 
 export default function Component() {

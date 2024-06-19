@@ -7,6 +7,7 @@ import type {
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { ChevronLeftIcon } from "lucide-react";
+import { GeneralErrorBoundary } from "~/components/error-boundary";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -87,6 +88,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     false,
     `Invalid intent: ${formData.get("intent") ?? "Missing"}`,
   );
+}
+
+export function ErrorBoundary() {
+  return <GeneralErrorBoundary />;
 }
 
 export default function Component() {
