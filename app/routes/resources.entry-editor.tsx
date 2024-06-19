@@ -43,8 +43,8 @@ const typeOptions = {
 } as const;
 
 const privacyOptions = {
-  everyone: "Everyone can see",
-  owner: "Only for me",
+  public: "Public",
+  private: "Private",
 } as const;
 
 export const schema = z.object({
@@ -60,7 +60,7 @@ export const schema = z.object({
   type: z.enum(["work", "learning", "interesting-thing"], {
     required_error: "Type is required",
   }),
-  privacy: z.enum(["everyone", "owner"], {
+  privacy: z.enum(["public", "private"], {
     required_error: "Privacy setting is required",
   }),
   text: z

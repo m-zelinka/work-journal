@@ -61,7 +61,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
     where: {
       user: { username: params.username },
-      privacy: ownerIsSignedIn ? undefined : "everyone",
+      privacy: ownerIsSignedIn ? undefined : "public",
     },
   });
 
