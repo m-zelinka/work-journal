@@ -25,13 +25,13 @@ export default function Component() {
         </div>
         <div className="mt-10">
           {user ? (
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-2">
               <Link to="/me" className={buttonVariants()}>
                 <span>
                   Continue to dashboard <span aria-hidden>→</span>
                 </span>
               </Link>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-[0.8rem] text-muted-foreground">
                 Signed in as{" "}
                 <span className="font-medium text-foreground">
                   {user.email}
