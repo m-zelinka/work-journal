@@ -144,7 +144,7 @@ export default function Component() {
               <Label htmlFor={fields.username.id}>Username</Label>
               <Input
                 autoComplete="username"
-                placeholder="m-robinson"
+                placeholder="m_robinson"
                 {...getInputProps(fields.username, { type: "text" })}
               />
               <ErrorList
