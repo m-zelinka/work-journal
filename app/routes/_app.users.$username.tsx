@@ -6,7 +6,7 @@ import {
   type MetaFunction,
   type SerializeFrom,
 } from "@remix-run/node";
-import { useFetchers, useLoaderData } from "@remix-run/react";
+import { useFetcher, useFetchers, useLoaderData } from "@remix-run/react";
 import { compareDesc, format, startOfWeek } from "date-fns";
 import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Fragment } from "react";
@@ -274,7 +274,10 @@ function EntryListItem({
   entry: Entry;
   showToolbar?: boolean;
 }) {
-  return (
+  const deleteFetcher = useFetcher();
+  const deleting = deleteFetcher.state !== "idle";
+
+  return deleting ? null : (
     <li className="group flex items-center gap-4">
       <p className="text-sm text-muted-foreground">
         {entry.text}{" "}
@@ -293,10 +296,25 @@ function EntryListItem({
             <PencilIcon className="size-4" />
             <span className="sr-only">Edit</span>
           </Button>
-          <Button variant="ghost" size="icon-xs">
-            <Trash2Icon className="size-4" />
-            <span className="sr-only">Delete</span>
-          </Button>
+          <deleteFetcher.Form
+            method="POST"
+            onSubmit={(event) => {
+              const shouldDelete = confirm(
+                "Please confirm you want to delete this record.",
+              );
+
+              if (!shouldDelete) {
+                event.preventDefault();
+              }
+            }}
+          >
+            <input type="hidden" name="intent" value="deleteEntry" />
+            <input type="hidden" name="entryId" value={entry.id} />
+            <Button variant="ghost" size="icon-xs">
+              <Trash2Icon className="size-4" />
+              <span className="sr-only">Delete</span>
+            </Button>
+          </deleteFetcher.Form>
         </div>
       ) : null}
     </li>
