@@ -1,4 +1,3 @@
-import { parseWithZod } from "@conform-to/zod";
 import { invariantResponse } from "@epic-web/invariant";
 import {
   json,
@@ -7,18 +6,18 @@ import {
   type MetaFunction,
   type SerializeFrom,
 } from "@remix-run/node";
-import { useActionData, useFetchers, useLoaderData } from "@remix-run/react";
+import { useFetchers, useLoaderData } from "@remix-run/react";
 import { compareDesc, format, startOfWeek } from "date-fns";
 import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Fragment } from "react";
 import { useSpinDelay } from "spin-delay";
 import { Empty } from "~/components/empty";
-import { EntryForm, schema as entryFormSchema } from "~/components/entry-form";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { getUserId, requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { cx } from "~/utils/misc";
+import { EntryEditor } from "./resources.entry-editor";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
@@ -70,23 +69,26 @@ export async function action({ request }: ActionFunctionArgs) {
 
   const formData = await request.formData();
 
-  const submission = parseWithZod(formData, { schema: entryFormSchema });
-
-  if (submission.status !== "success") {
-    return json(
-      { result: submission.reply() },
-      { status: submission.status === "error" ? 400 : 200 },
+  if (formData.get("intent") === "deleteEntry") {
+    const entryId = formData.get("entryId");
+    invariantResponse(
+      typeof entryId === "string",
+      `Invalid entryId: ${entryId ?? "Missing"}`,
+      { status: 400 },
     );
-  }
 
-  const entry = submission.value;
-
-  if (formData.get("intent") === "createEntry") {
-    await prisma.entry.create({
-      data: { ...entry, user: { connect: { id: userId } } },
+    const entry = await prisma.entry.findUnique({
+      where: { id: entryId, userId },
+    });
+    invariantResponse(entry, `No entry with the id "${entryId}" exists`, {
+      status: 404,
     });
 
-    return json({ result: submission.reply() });
+    await prisma.entry.delete({
+      where: { id: entry.id, userId },
+    });
+
+    return json({ ok: true });
   }
 
   invariantResponse(
@@ -98,8 +100,6 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function Component() {
   const { owner, ownerIsSignedIn, ownerEntries } =
     useLoaderData<typeof loader>();
-
-  const actionData = useActionData<typeof action>();
 
   const ownerDisplayName = `${owner.first} ${owner.last}`;
 
@@ -114,7 +114,7 @@ export default function Component() {
             </div>
           </CardHeader>
           <CardContent>
-            <EntryForm lastResult={actionData?.result} />
+            <EntryEditor />
           </CardContent>
         </Card>
       ) : (
@@ -128,7 +128,11 @@ export default function Component() {
         ) : (
           <Empty
             title="No entries"
-            description={`${ownerDisplayName} hasn't saved any entries yet.`}
+            description={
+              ownerIsSignedIn
+                ? "You haven't saved any entries yet."
+                : `${ownerDisplayName} hasn't saved any entries yet.`
+            }
           />
         )}
       </div>

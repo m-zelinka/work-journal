@@ -3,18 +3,19 @@ import {
   getInputProps,
   getTextareaProps,
   useForm,
-  type SubmissionResult,
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { Form, useSubmit } from "@remix-run/react";
+import { invariantResponse } from "@epic-web/invariant";
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { Form, useActionData, useSubmit } from "@remix-run/react";
 import { format } from "date-fns";
 import { LinkIcon } from "lucide-react";
 import { useRef } from "react";
 import { z } from "zod";
-import { ErrorList } from "./forms";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import { Button } from "~/components//ui/button";
+import { Input } from "~/components//ui/input";
+import { Label } from "~/components//ui/label";
 import {
   Select,
   SelectContent,
@@ -23,8 +24,11 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Textarea } from "./ui/textarea";
+} from "~/components//ui/select";
+import { Textarea } from "~/components//ui/textarea";
+import { ErrorList } from "~/components/forms";
+import { requireUserId } from "~/utils/auth.server";
+import { prisma } from "~/utils/db.server";
 
 const typeOptions = {
   work: "Work",
@@ -60,11 +64,39 @@ export const schema = z.object({
     .transform((arg) => arg || null),
 });
 
-export function EntryForm({
-  lastResult,
-}: {
-  lastResult?: SubmissionResult | null;
-}) {
+export async function action({ request }: ActionFunctionArgs) {
+  const userId = await requireUserId(request);
+
+  const formData = await request.formData();
+
+  const submission = parseWithZod(formData, { schema });
+
+  if (submission.status !== "success") {
+    return json(
+      { result: submission.reply() },
+      { status: submission.status === "error" ? 400 : 200 },
+    );
+  }
+
+  const entry = submission.value;
+
+  if (formData.get("intent") === "createEntry") {
+    await prisma.entry.create({
+      data: { ...entry, user: { connect: { id: userId } } },
+    });
+
+    return json({ result: submission.reply() });
+  }
+
+  invariantResponse(
+    false,
+    `Invalid intent: ${formData.get("intent") ?? "Missing"}`,
+  );
+}
+
+export function EntryEditor() {
+  const actionData = useActionData<typeof action>();
+
   const submit = useSubmit();
 
   const [form, fields] = useForm({
@@ -74,7 +106,7 @@ export function EntryForm({
       privacy: Object.keys(privacyOptions)[0],
     },
     constraint: getZodConstraint(schema),
-    lastResult,
+    lastResult: actionData?.result,
     shouldValidate: "onSubmit",
     shouldRevalidate: "onInput",
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
@@ -122,7 +154,11 @@ export function EntryForm({
   };
 
   return (
-    <Form method="POST" {...getFormProps(form)}>
+    <Form
+      method="POST"
+      action="/resources/entry-editor"
+      {...getFormProps(form)}
+    >
       <input type="hidden" name="intent" value="createEntry" />
       <div className="grid gap-4">
         <div className="grid gap-4 md:grid-cols-3">
