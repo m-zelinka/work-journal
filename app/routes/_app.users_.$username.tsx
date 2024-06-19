@@ -111,8 +111,6 @@ export default function Component() {
   const { owner, ownerIsSignedIn, ownerEntries } =
     useLoaderData<typeof loader>();
 
-  const ownerDisplayName = `${owner.first} ${owner.last}`;
-
   return (
     <>
       {ownerIsSignedIn ? (
@@ -130,7 +128,7 @@ export default function Component() {
       ) : (
         <div className="grid gap-1">
           <h1 className="text-xl font-semibold tracking-tight">
-            {ownerDisplayName}&apos;s Entries
+            {`${owner.first} ${owner.last}`}&apos;s Entries
           </h1>
           <p className="text-sm text-muted-foreground">
             Joined{" "}
@@ -149,7 +147,7 @@ export default function Component() {
             description={
               ownerIsSignedIn
                 ? "You haven't saved any entries yet."
-                : `${ownerDisplayName} hasn't saved any entries yet.`
+                : `${owner.first} hasn't saved any entries yet.`
             }
           />
         )}
