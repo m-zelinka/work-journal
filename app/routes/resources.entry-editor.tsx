@@ -34,7 +34,7 @@ import { Textarea } from "~/components//ui/textarea";
 import { ErrorList } from "~/components/forms";
 import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
-import type { Entry } from "./_app.users.$username";
+import type { Entry } from "./_app.users_.$username";
 
 const typeOptions = {
   work: "Work",
