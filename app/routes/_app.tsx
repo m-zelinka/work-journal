@@ -123,7 +123,16 @@ function UserDropdown({
 }) {
   const submit = useSubmit();
   function signOut() {
-    submit({}, { method: "post", action: "/logout" });
+    submit(
+      {},
+      {
+        method: "post",
+        action: "/logout",
+        // Force flush any updates to ensure that the DOM is updated 
+        // immediately.
+        unstable_flushSync: true,
+      },
+    );
   }
 
   return (
