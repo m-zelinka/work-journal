@@ -114,9 +114,7 @@ export async function action({ request }: ActionFunctionArgs) {
     invariantResponse(
       existingEntry,
       `No entry with the id "${entryId}" exists`,
-      {
-        status: 404,
-      },
+      { status: 404 },
     );
 
     await prisma.entry.update({
@@ -284,10 +282,7 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
                 event.preventDefault();
 
                 event.currentTarget.form?.dispatchEvent(
-                  new Event("submit", {
-                    bubbles: true,
-                    cancelable: true,
-                  }),
+                  new Event("submit", { bubbles: true, cancelable: true }),
                 );
               }
             }}

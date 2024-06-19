@@ -128,8 +128,7 @@ function UserDropdown({
     submit(null, {
       method: "post",
       action: "/logout",
-      // Force flush any updates to ensure that the DOM is updated
-      // immediately.
+      // Force flush any updates to ensure that the DOM is updated immediately.
       unstable_flushSync: true,
     });
     revalidator.revalidate();

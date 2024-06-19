@@ -21,11 +21,7 @@ import { prisma } from "~/utils/db.server";
 import { EntryEditor } from "./resources.entry-editor";
 
 export const meta: MetaFunction = () => {
-  return [
-    {
-      title: "Edit entry",
-    },
-  ];
+  return [{ title: "Edit entry" }];
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
@@ -71,9 +67,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     invariantResponse(
       entry,
       `No entry with the id "${params.entryId}" exists`,
-      {
-        status: 404,
-      },
+      { status: 404 },
     );
 
     await prisma.entry.delete({

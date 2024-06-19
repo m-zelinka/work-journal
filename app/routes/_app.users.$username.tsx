@@ -163,7 +163,7 @@ function EntrySavingIndicator() {
   const showSavingIndicator = useSpinDelay(pendingEntries.length > 0);
 
   if (!showSavingIndicator) {
-    return;
+    return null;
   }
 
   return <CloudIcon className="size-5 animate-pulse text-gray-400" />;
