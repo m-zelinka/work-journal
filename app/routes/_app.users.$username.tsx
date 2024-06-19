@@ -7,7 +7,7 @@ import {
   type SerializeFrom,
 } from "@remix-run/node";
 import { Form, useFetcher, useFetchers, useLoaderData } from "@remix-run/react";
-import { compareDesc, format, startOfWeek } from "date-fns";
+import { compareDesc, format, formatISO, startOfWeek } from "date-fns";
 import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
 import { Fragment } from "react";
 import { useSpinDelay } from "spin-delay";
@@ -39,7 +39,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
   const owner = await prisma.user.findUnique({
-    select: { id: true, first: true, last: true },
+    select: { id: true, first: true, last: true, createdAt: true },
     where: { username: params.username },
   });
   invariantResponse(
@@ -128,9 +128,17 @@ export default function Component() {
           </CardContent>
         </Card>
       ) : (
-        <h1 className="text-xl font-semibold tracking-tight">
-          {ownerDisplayName}&apos;s Entries
-        </h1>
+        <div className="grid gap-1">
+          <h1 className="text-xl font-semibold tracking-tight">
+            {ownerDisplayName}&apos;s Entries
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Joined{" "}
+            <time dateTime={formatISO(owner.createdAt)}>
+              {format(owner.createdAt, "PP")}
+            </time>
+          </p>
+        </div>
       )}
       <div className="mt-8">
         {ownerEntries.length ? (
