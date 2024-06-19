@@ -28,7 +28,7 @@ export default function Component() {
             <div className="flex flex-col items-center gap-3">
               <Link to="/me" className={buttonVariants()}>
                 <span>
-                  Continue to your entries <span aria-hidden>→</span>
+                  Continue to dashboard <span aria-hidden>→</span>
                 </span>
               </Link>
               <p className="text-sm text-muted-foreground">
