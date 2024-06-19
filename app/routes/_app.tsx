@@ -1,6 +1,12 @@
 import type { User } from "@prisma/client";
-import { Link, NavLink, useSubmit, type NavLinkProps } from "@remix-run/react";
-import { CircleUser, Menu } from "lucide-react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useSubmit,
+  type NavLinkProps,
+} from "@remix-run/react";
+import { CircleUser as CircleUserIcon, Menu as MenuIcon } from "lucide-react";
 import { Logo } from "~/components/logo";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
@@ -50,7 +56,7 @@ export default function Component() {
               size="icon"
               className="shrink-0 md:hidden"
             >
-              <Menu className="size-5" />
+              <MenuIcon className="size-5" />
               <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
@@ -89,6 +95,11 @@ export default function Component() {
           )}
         </div>
       </header>
+      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
+        <div className="mx-auto w-full max-w-3xl flex-1">
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 }
@@ -119,7 +130,7 @@ function UserDropdown({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="secondary" size="icon" className="rounded-full">
-          <CircleUser className="size-5" />
+          <CircleUserIcon className="size-5" />
           <span className="sr-only">Toggle user menu</span>
         </Button>
       </DropdownMenuTrigger>
