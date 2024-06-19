@@ -3,6 +3,7 @@ import {
   Link,
   NavLink,
   Outlet,
+  useRevalidator,
   useSubmit,
   type NavLinkProps,
 } from "@remix-run/react";
@@ -122,17 +123,16 @@ function UserDropdown({
   user: Pick<User, "username" | "first" | "last" | "email">;
 }) {
   const submit = useSubmit();
+  const revalidator = useRevalidator();
   function signOut() {
-    submit(
-      {},
-      {
-        method: "post",
-        action: "/logout",
-        // Force flush any updates to ensure that the DOM is updated 
-        // immediately.
-        unstable_flushSync: true,
-      },
-    );
+    submit(null, {
+      method: "post",
+      action: "/logout",
+      // Force flush any updates to ensure that the DOM is updated
+      // immediately.
+      unstable_flushSync: true,
+    });
+    revalidator.revalidate();
   }
 
   return (
