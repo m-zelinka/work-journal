@@ -6,7 +6,7 @@ import {
   useSubmit,
   type NavLinkProps,
 } from "@remix-run/react";
-import { CircleUser as CircleUserIcon, Menu as MenuIcon } from "lucide-react";
+import { CircleUserIcon, MenuIcon } from "lucide-react";
 import { Logo } from "~/components/logo";
 import { Button, buttonVariants } from "~/components/ui/button";
 import {
