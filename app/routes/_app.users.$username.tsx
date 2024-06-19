@@ -4,6 +4,7 @@ import {
   json,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
+  type MetaFunction,
   type SerializeFrom,
 } from "@remix-run/node";
 import { useActionData, useFetchers, useLoaderData } from "@remix-run/react";
@@ -18,7 +19,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { getUserId, requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { cx } from "~/utils/misc";
-import { useOptionalUser } from "~/utils/user";
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [
+    {
+      title: data
+        ? data.ownerIsSignedIn
+          ? "Dashboard"
+          : `${data.owner.first} ${data.owner.last}`
+        : "Not Found",
+    },
+  ];
+};
 
 type LoaderData = SerializeFrom<typeof loader>;
 export type Entry = LoaderData["ownerEntries"][number];
@@ -50,7 +62,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
   });
 
-  return json({ owner, ownerEntries });
+  return json({ owner, ownerIsSignedIn, ownerEntries });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -84,18 +96,16 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Component() {
-  const { owner, ownerEntries } = useLoaderData<typeof loader>();
+  const { owner, ownerIsSignedIn, ownerEntries } =
+    useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
 
   const ownerDisplayName = `${owner.first} ${owner.last}`;
 
-  const user = useOptionalUser();
-  const isUserOwner = user?.id === owner.id;
-
   return (
     <>
-      {isUserOwner ? (
+      {ownerIsSignedIn ? (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -114,7 +124,7 @@ export default function Component() {
       )}
       <div className="mt-8">
         {ownerEntries.length ? (
-          <EntryList entries={ownerEntries} showToolbar={isUserOwner} />
+          <EntryList entries={ownerEntries} showToolbar={ownerIsSignedIn} />
         ) : (
           <Empty
             title="No entries"
