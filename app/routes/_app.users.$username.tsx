@@ -4,19 +4,28 @@ import {
   json,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
+  type SerializeFrom,
 } from "@remix-run/node";
 import { useActionData, useLoaderData } from "@remix-run/react";
+import { compareDesc, format, startOfWeek } from "date-fns";
+import { Fragment } from "react";
+import { Empty } from "~/components/empty";
 import { EntryForm, schema as entryFormSchema } from "~/components/entry-form";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
+import { cx } from "~/utils/misc";
 import { useOptionalUser } from "~/utils/user";
 
-export async function loader({ params }: LoaderFunctionArgs) {
+type LoaderData = SerializeFrom<typeof loader>;
+export type Entry = LoaderData["ownerEntries"][number];
+
+export async function loader({ request, params }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
+
   const owner = await prisma.user.findUnique({
     select: {
       id: true,
-      username: true,
       first: true,
       last: true,
     },
@@ -28,7 +37,17 @@ export async function loader({ params }: LoaderFunctionArgs) {
     { status: 404 },
   );
 
-  return json({ owner });
+  const ownerIsSignedIn = userId === owner.id;
+
+  const ownerEntries = await prisma.entry.findMany({
+    select: { id: true, date: true, type: true, text: true, link: true },
+    where: {
+      user: { username: params.username },
+      privacy: ownerIsSignedIn ? undefined : "everyone",
+    },
+  });
+
+  return json({ owner, ownerEntries });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -62,18 +81,18 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Component() {
-  const { owner } = useLoaderData<typeof loader>();
+  const { owner, ownerEntries } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
 
-  const ownerDisplayName = `${owner.first} ${owner.last}` ?? owner.username;
+  const ownerDisplayName = `${owner.first} ${owner.last}`;
 
   const user = useOptionalUser();
-  const isOwner = user?.id === owner.id;
+  const isUserOwner = user?.id === owner.id;
 
   return (
     <>
-      {isOwner ? (
+      {isUserOwner ? (
         <Card>
           <CardHeader>
             <CardTitle>New entry</CardTitle>
@@ -87,6 +106,96 @@ export default function Component() {
           {ownerDisplayName}&apos;s Entries
         </h1>
       )}
+      <div className="mt-8">
+        {ownerEntries.length ? (
+          <EntryList entries={ownerEntries} />
+        ) : (
+          <Empty
+            title="No entries"
+            description={`${ownerDisplayName} hasn't saved any entries yet.`}
+          />
+        )}
+      </div>
     </>
   );
+}
+
+function EntryList({ entries }: { entries: Array<Entry> }) {
+  const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
+
+  const entriesToShow = [...entriesById.values()].sort((a, b) =>
+    compareDesc(a.date, b.date),
+  );
+
+  // Group entries by week
+  const entriesByWeek: Record<string, Array<(typeof entries)[number]>> = {};
+  for (const entry of entriesToShow) {
+    const sunday = startOfWeek(entry.date);
+    const sundayString = format(sunday, "yyyy-MM-dd");
+
+    entriesByWeek[sundayString] ||= [];
+    entriesByWeek[sundayString].push(entry);
+  }
+
+  const weeks = Object.keys(entriesByWeek).map((dateString) => ({
+    dateString,
+    sections: {
+      "🏗 Work": entriesByWeek[dateString].filter(
+        (entry) => entry.type === "work",
+      ),
+      "💫 Learnings": entriesByWeek[dateString].filter(
+        (entry) => entry.type === "learning",
+      ),
+      "😮 Interesting Things": entriesByWeek[dateString].filter(
+        (entry) => entry.type === "interesting-thing",
+      ),
+    },
+  }));
+
+  return (
+    <ul className="grid gap-6">
+      {weeks.map((week, weekIndex) => (
+        <li key={week.dateString} className="relative flex gap-4">
+          <div
+            className={cx(
+              weekIndex === weeks.length - 1 ? "h-0" : "-bottom-6",
+              "absolute left-0 top-0 flex w-6 justify-center",
+            )}
+            aria-hidden
+          >
+            <div className="w-px border-l" />
+          </div>
+          <div
+            className="relative flex size-6 flex-none items-center justify-center"
+            aria-hidden
+          >
+            <div className="size-1.5 rounded-full border border-muted-foreground" />
+          </div>
+          <div className="flex-auto py-0.5">
+            <p className="text-sm font-semibold">
+              Week of {format(week.dateString, "MMMM d, yyyy")}
+            </p>
+            {Object.entries(week.sections).map(([title, entries]) =>
+              entries.length ? (
+                <Fragment key={title}>
+                  <p className="mt-6 text-lg font-semibold tracking-tight">
+                    {title}
+                  </p>
+                  <ul className="mt-3 grid gap-2">
+                    {entries.map((entry) => (
+                      <EntryListItem key={entry.id} entry={entry} />
+                    ))}
+                  </ul>
+                </Fragment>
+              ) : null,
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function EntryListItem({ entry }: { entry: Entry }) {
+  return <li className="text-sm text-muted-foreground">{entry.text}</li>;
 }

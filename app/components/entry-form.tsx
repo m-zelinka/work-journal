@@ -32,8 +32,8 @@ const typeOptions = {
 } as const;
 
 const privacyOptions = {
-  everyone: "For everyone",
-  owner: "Only for me",
+  everyone: "Everyone",
+  owner: "Owner",
 } as const;
 
 export const schema = z.object({
