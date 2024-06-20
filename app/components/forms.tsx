@@ -1,3 +1,5 @@
+"use client";
+
 import { cx } from "~/utils/misc";
 
 export type ListOfErrors = Array<string | null | undefined> | null | undefined;

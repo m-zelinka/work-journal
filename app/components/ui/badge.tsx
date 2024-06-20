@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes } from "react";
 import { cva, cx, type VariantProps } from "~/utils/misc";
 

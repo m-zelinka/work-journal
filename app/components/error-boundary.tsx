@@ -1,3 +1,5 @@
+"use client";
+
 import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
 import { TriangleAlertIcon } from "lucide-react";
 
