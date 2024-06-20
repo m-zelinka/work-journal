@@ -20,8 +20,8 @@ import { requireUserId } from "~/utils/auth.server";
 import { prisma } from "~/utils/db.server";
 import { EntryEditor } from "./resources.entry-editor";
 
-export const meta: MetaFunction = () => {
-  return [{ title: "Edit entry" }];
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+  return [{ title: data ? "Edit entry" : "Not Found" }];
 };
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
