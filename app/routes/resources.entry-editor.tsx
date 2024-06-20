@@ -132,7 +132,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export function EntryEditor({ entry }: { entry?: Entry }) {
-  const editMode = Boolean(entry);
+  const inEditMode = Boolean(entry);
 
   const actionData = useActionData<typeof action>();
 
@@ -151,7 +151,7 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
     shouldRevalidate: "onInput",
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
     onSubmit: (event, context) => {
-      if (editMode) {
+      if (inEditMode) {
         return;
       }
 
@@ -205,7 +205,7 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
       action="/resources/entry-editor"
       {...getFormProps(form)}
     >
-      {editMode ? (
+      {inEditMode ? (
         <>
           <input type="hidden" name="intent" value="editEntry" />
           <input {...getInputProps(fields.id, { type: "hidden" })} />
@@ -277,16 +277,16 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
           <Textarea
             ref={textRef}
             onKeyDown={(event) => {
-              // Submit form on enter keydown event
               if (event.key === "Enter") {
+                // Submit form on enter keydown event
                 event.preventDefault();
-
                 event.currentTarget.form?.dispatchEvent(
                   new Event("submit", { bubbles: true, cancelable: true }),
                 );
               }
             }}
             className="min-h-24 resize-none"
+            placeholder={inEditMode ? undefined : "What would you like to add?"}
             {...getTextareaProps(fields.text)}
           />
           <ErrorList id={fields.text.errorId} errors={fields.text.errors} />
