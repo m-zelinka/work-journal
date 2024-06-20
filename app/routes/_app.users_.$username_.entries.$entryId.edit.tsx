@@ -6,7 +6,7 @@ import type {
 } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
-import { ChevronLeftIcon } from "lucide-react";
+import { ChevronLeftIcon, Trash2Icon } from "lucide-react";
 import { GeneralErrorBoundary } from "~/components/error-boundary";
 import {
   Breadcrumb,
@@ -92,37 +92,18 @@ export default function Component() {
   const { entry } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to="/me" className="flex items-center gap-3">
-                  <ChevronLeftIcon className="size-4" /> Go back
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <Form
-          method="POST"
-          onSubmit={(event) => {
-            const shouldDelete = confirm(
-              "Please confirm you want to delete this record.",
-            );
-
-            if (!shouldDelete) {
-              event.preventDefault();
-            }
-          }}
-        >
-          <input type="hidden" name="intent" value="deleteEntry" />
-          <Button type="submit" variant="destructive" size="sm">
-            Delete this entry…
-          </Button>
-        </Form>
-      </div>
+    <div className="grid gap-3">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/me" className="flex items-center gap-3">
+                <ChevronLeftIcon className="size-4" /> Go back
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <Card>
         <CardHeader>
           <CardTitle>Edit entry</CardTitle>
@@ -131,6 +112,25 @@ export default function Component() {
           <EntryEditor entry={entry} />
         </CardContent>
       </Card>
+      <Form
+        method="POST"
+        onSubmit={(event) => {
+          const shouldDelete = confirm(
+            "Please confirm you want to delete this record.",
+          );
+
+          if (!shouldDelete) {
+            event.preventDefault();
+          }
+        }}
+        className="mt-4"
+      >
+        <input type="hidden" name="intent" value="deleteEntry" />
+        <Button type="submit" variant="destructive" size="sm">
+          <Trash2Icon className="mr-2 size-4" />
+          Delete this entry…
+        </Button>
+      </Form>
     </div>
   );
 }

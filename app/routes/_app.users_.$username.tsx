@@ -310,7 +310,7 @@ function EntryListItem({
       {showToolbar ? (
         <div className="-my-1 flex gap-3 opacity-0 focus-within:opacity-100 group-hover:opacity-100">
           <Form action={`entries/${entry.id}/edit`}>
-            <Button variant="ghost" size="icon-xs">
+            <Button variant="secondary" size="icon-xs">
               <PencilIcon className="size-4" />
               <span className="sr-only">Edit</span>
             </Button>
@@ -329,7 +329,7 @@ function EntryListItem({
           >
             <input type="hidden" name="intent" value="deleteEntry" />
             <input type="hidden" name="entryId" value={entry.id} />
-            <Button variant="ghost" size="icon-xs">
+            <Button variant="secondary" size="icon-xs">
               <Trash2Icon className="size-4" />
               <span className="sr-only">Delete</span>
             </Button>

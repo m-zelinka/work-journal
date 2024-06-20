@@ -48,7 +48,9 @@ export default function Component() {
                       </span>
                     </p>
                     {isSignedInUser ? (
-                      <Badge className="-my-1">Your account</Badge>
+                      <Badge className="-my-1" variant="secondary">
+                        Your account
+                      </Badge>
                     ) : null}
                   </div>
                   <p className="text-sm text-muted-foreground">
