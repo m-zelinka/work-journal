@@ -18,12 +18,9 @@ This project is a simple work journaling app, for daily logging of learnings and
 
 3. Define required env variables:
 
-   > [!IMPORTANT]
-   > You must define your env vars before the next step.
-
    - Copy the template contents in [.env.example](.env.example) to a new file named `.env` and fill all the required fields.
 
-4. Run the application in dev mode:
+5. Run the application in dev mode:
 
    ```sh
    npm run dev
