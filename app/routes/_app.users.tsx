@@ -8,6 +8,7 @@ import {
   Link,
   useLoaderData,
   useNavigation,
+  useResolvedPath,
   useSearchParams,
 } from '@remix-run/react'
 import { format, formatISO } from 'date-fns'
@@ -119,7 +120,10 @@ function SearchBar() {
   const q = searchParams.get('q')
 
   const navigation = useNavigation()
-  const searching = new URLSearchParams(navigation.location?.search).has('q')
+  const usersRoute = useResolvedPath('/users')
+  const searching =
+    navigation.location?.pathname === usersRoute.pathname &&
+    new URLSearchParams(navigation.location?.search).has('q')
   const showSpinner = useSpinDelay(searching)
 
   const inputRef = useRef<HTMLInputElement>(null)
