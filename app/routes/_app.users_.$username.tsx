@@ -1,54 +1,54 @@
-import { invariantResponse } from "@epic-web/invariant";
+import { invariantResponse } from '@epic-web/invariant'
 import {
   json,
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
   type MetaFunction,
   type SerializeFrom,
-} from "@remix-run/node";
-import { Form, useFetcher, useFetchers, useLoaderData } from "@remix-run/react";
-import { compareDesc, format, formatISO, startOfWeek } from "date-fns";
-import { CloudIcon, PencilIcon, Trash2Icon } from "lucide-react";
-import { Fragment } from "react";
-import { useSpinDelay } from "spin-delay";
-import { Empty } from "~/components/empty";
-import { GeneralErrorBoundary } from "~/components/error-boundary";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { getUserId, requireUserId } from "~/utils/auth.server";
-import { prisma } from "~/utils/db.server";
-import { cx } from "~/utils/misc";
-import { EntryEditor } from "./resources.entry-editor";
+} from '@remix-run/node'
+import { Form, useFetcher, useFetchers, useLoaderData } from '@remix-run/react'
+import { compareDesc, format, formatISO, startOfWeek } from 'date-fns'
+import { CloudIcon, PencilIcon, Trash2Icon } from 'lucide-react'
+import { Fragment } from 'react'
+import { useSpinDelay } from 'spin-delay'
+import { Empty } from '~/components/empty'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
+import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { getUserId, requireUserId } from '~/utils/auth.server'
+import { prisma } from '~/utils/db.server'
+import { cx } from '~/utils/misc'
+import { EntryEditor } from './resources.entry-editor'
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
   return [
     {
       title: data
         ? data.ownerIsSignedIn
-          ? "Dashboard"
+          ? 'Dashboard'
           : `${data.owner.first} ${data.owner.last}`
-        : "Not Found",
+        : 'Not Found',
     },
-  ];
-};
+  ]
+}
 
-type LoaderData = SerializeFrom<typeof loader>;
-export type Entry = LoaderData["ownerEntries"][number];
+type LoaderData = SerializeFrom<typeof loader>
+export type Entry = LoaderData['ownerEntries'][number]
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
+  const userId = await getUserId(request)
 
   const owner = await prisma.user.findUnique({
     select: { id: true, first: true, last: true, createdAt: true },
     where: { username: params.username },
-  });
+  })
   invariantResponse(
     owner,
     `No user with the username "${params.username}" exists.`,
     { status: 404 },
-  );
+  )
 
-  const ownerIsSignedIn = userId === owner.id;
+  const ownerIsSignedIn = userId === owner.id
 
   const ownerEntries = await prisma.entry.findMany({
     select: {
@@ -61,55 +61,55 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
     },
     where: {
       user: { username: params.username },
-      privacy: ownerIsSignedIn ? undefined : "public",
+      privacy: ownerIsSignedIn ? undefined : 'public',
     },
-  });
+  })
 
-  return json({ owner, ownerIsSignedIn, ownerEntries });
+  return json({ owner, ownerIsSignedIn, ownerEntries })
 }
 
 export async function action({ request }: ActionFunctionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserId(request)
 
-  const formData = await request.formData();
+  const formData = await request.formData()
 
-  if (formData.get("intent") === "deleteEntry") {
-    const entryId = formData.get("entryId");
+  if (formData.get('intent') === 'deleteEntry') {
+    const entryId = formData.get('entryId')
     invariantResponse(
-      typeof entryId === "string",
-      `Invalid entryId: ${entryId ?? "Missing"}`,
+      typeof entryId === 'string',
+      `Invalid entryId: ${entryId ?? 'Missing'}`,
       { status: 400 },
-    );
+    )
 
     const entry = await prisma.entry.findUnique({
       select: { id: true },
       where: { id: entryId, userId },
-    });
+    })
     invariantResponse(entry, `No entry with the id "${entryId}" exists`, {
       status: 404,
-    });
+    })
 
     await prisma.entry.delete({
       select: { id: true },
       where: { id: entry.id, userId },
-    });
+    })
 
-    return json({ ok: true });
+    return json({ ok: true })
   }
 
   invariantResponse(
     false,
-    `Invalid intent: ${formData.get("intent") ?? "Missing"}`,
-  );
+    `Invalid intent: ${formData.get('intent') ?? 'Missing'}`,
+  )
 }
 
 export function ErrorBoundary() {
-  return <GeneralErrorBoundary />;
+  return <GeneralErrorBoundary />
 }
 
 export default function Component() {
   const { owner, ownerIsSignedIn, ownerEntries } =
-    useLoaderData<typeof loader>();
+    useLoaderData<typeof loader>()
 
   return (
     <>
@@ -131,9 +131,9 @@ export default function Component() {
             {`${owner.first} ${owner.last}`}&apos;s Entries
           </h1>
           <p className="text-sm text-muted-foreground">
-            Joined{" "}
+            Joined{' '}
             <time dateTime={formatISO(owner.createdAt)}>
-              {format(owner.createdAt, "PP")}
+              {format(owner.createdAt, 'PP')}
             </time>
           </p>
         </div>
@@ -153,88 +153,88 @@ export default function Component() {
         )}
       </div>
     </>
-  );
+  )
 }
 
 function EntrySavingIndicator() {
-  const pendingEntries = usePendingEntries();
-  const showSavingIndicator = useSpinDelay(pendingEntries.length > 0);
+  const pendingEntries = usePendingEntries()
+  const showSavingIndicator = useSpinDelay(pendingEntries.length > 0)
 
   if (!showSavingIndicator) {
-    return null;
+    return null
   }
 
-  return <CloudIcon className="size-5 animate-pulse text-gray-400" />;
+  return <CloudIcon className="size-5 animate-pulse text-gray-400" />
 }
 
 function usePendingEntries() {
   type PendingEntryFetcher = ReturnType<typeof useFetchers>[number] & {
-    formData: FormData;
-  };
+    formData: FormData
+  }
 
   return useFetchers()
     .filter(
       (fetcher): fetcher is PendingEntryFetcher =>
-        fetcher.formData?.get("intent") === "createEntry",
+        fetcher.formData?.get('intent') === 'createEntry',
     )
     .map((fetcher) => {
-      const id = String(fetcher.formData.get("id"));
-      const date = String(fetcher.formData.get("date"));
-      const type = String(fetcher.formData.get("type"));
-      const privacy = String(fetcher.formData.get("privacy"));
-      const text = String(fetcher.formData.get("text"));
-      const link = String(fetcher.formData.get("link"));
-      const entry: Entry = { id, date, type, privacy, text, link };
+      const id = String(fetcher.formData.get('id'))
+      const date = String(fetcher.formData.get('date'))
+      const type = String(fetcher.formData.get('type'))
+      const privacy = String(fetcher.formData.get('privacy'))
+      const text = String(fetcher.formData.get('text'))
+      const link = String(fetcher.formData.get('link'))
+      const entry: Entry = { id, date, type, privacy, text, link }
 
-      return entry;
-    });
+      return entry
+    })
 }
 
 function EntryList({
   entries,
   showToolbar,
 }: {
-  entries: Array<Entry>;
-  showToolbar?: boolean;
+  entries: Array<Entry>
+  showToolbar?: boolean
 }) {
-  const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
+  const entriesById = new Map(entries.map((entry) => [entry.id, entry]))
 
   // Merge pending and existing entries
-  const pendingEntries = usePendingEntries();
+  const pendingEntries = usePendingEntries()
   for (const pendingEntry of pendingEntries) {
-    const entry = entriesById.get(pendingEntry.id);
-    const merged = entry ? { ...entry, ...pendingEntry } : pendingEntry;
-    entriesById.set(pendingEntry.id, merged);
+    const entry = entriesById.get(pendingEntry.id)
+    const merged = entry ? { ...entry, ...pendingEntry } : pendingEntry
+    entriesById.set(pendingEntry.id, merged)
   }
 
   const entriesToShow = [...entriesById.values()].sort((a, b) =>
     compareDesc(a.date, b.date),
-  );
+  )
 
   // Group entries by week
-  const entriesByWeek: Record<string, Array<(typeof entries)[number]>> = {};
+  const entriesByWeek: Record<string, Array<(typeof entries)[number]>> = {}
   for (const entry of entriesToShow) {
-    const sunday = startOfWeek(entry.date);
-    const sundayString = format(sunday, "yyyy-MM-dd");
+    const sunday = startOfWeek(entry.date)
+    const sundayString = format(sunday, 'yyyy-MM-dd')
 
-    entriesByWeek[sundayString] ||= [];
-    entriesByWeek[sundayString].push(entry);
+    entriesByWeek[sundayString] ||= []
+    entriesByWeek[sundayString].push(entry)
   }
 
   const weeks = Object.keys(entriesByWeek).map((dateString) => ({
     dateString,
     sections: {
-      "🏗 Work": entriesByWeek[dateString].filter(
-        (entry) => entry.type === "work",
+      '🏗 Work': entriesByWeek[dateString].filter(
+        (entry) => entry.type === 'work',
       ),
-      "💫 Learnings": entriesByWeek[dateString].filter(
-        (entry) => entry.type === "learning",
+      '💫 Learnings': entriesByWeek[dateString].filter(
+        (entry) => entry.type === 'learning',
       ),
-      "😮 Interesting Things": entriesByWeek[dateString].filter(
-        (entry) => entry.type === "interesting-thing",
+      '😮 Interesting Things': entriesByWeek[dateString].filter(
+        (entry) => entry.type === 'interesting-thing',
       ),
     },
-  }));
+  }))
 
   return (
     <ul className="grid gap-6">
@@ -242,8 +242,8 @@ function EntryList({
         <li key={week.dateString} className="relative flex gap-4">
           <div
             className={cx(
-              weekIndex === weeks.length - 1 ? "h-0" : "-bottom-6",
-              "absolute left-0 top-0 flex w-6 justify-center",
+              weekIndex === weeks.length - 1 ? 'h-0' : '-bottom-6',
+              'absolute left-0 top-0 flex w-6 justify-center',
             )}
             aria-hidden
           >
@@ -257,7 +257,7 @@ function EntryList({
           </div>
           <div className="flex-auto py-0.5">
             <p className="text-sm font-semibold">
-              Week of {format(week.dateString, "MMMM d, yyyy")}
+              Week of {format(week.dateString, 'MMMM d, yyyy')}
             </p>
             {Object.entries(week.sections).map(([title, entries]) =>
               entries.length ? (
@@ -281,23 +281,23 @@ function EntryList({
         </li>
       ))}
     </ul>
-  );
+  )
 }
 
 function EntryListItem({
   entry,
   showToolbar,
 }: {
-  entry: Entry;
-  showToolbar?: boolean;
+  entry: Entry
+  showToolbar?: boolean
 }) {
-  const deleteFetcher = useFetcher();
-  const deleting = deleteFetcher.state !== "idle";
+  const deleteFetcher = useFetcher()
+  const deleting = deleteFetcher.state !== 'idle'
 
   return deleting ? null : (
     <li className="group flex items-center gap-4">
       <p className="text-sm text-muted-foreground">
-        {entry.text}{" "}
+        {entry.text}{' '}
         {entry.link ? (
           <a
             href={entry.link}
@@ -319,11 +319,11 @@ function EntryListItem({
             method="POST"
             onSubmit={(event) => {
               const shouldDelete = confirm(
-                "Please confirm you want to delete this record.",
-              );
+                'Please confirm you want to delete this record.',
+              )
 
               if (!shouldDelete) {
-                event.preventDefault();
+                event.preventDefault()
               }
             }}
           >
@@ -337,5 +337,5 @@ function EntryListItem({
         </div>
       ) : null}
     </li>
-  );
+  )
 }

@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { User } from '@prisma/client'
 import {
   Link,
   NavLink,
@@ -6,10 +6,10 @@ import {
   useRevalidator,
   useSubmit,
   type NavLinkProps,
-} from "@remix-run/react";
-import { CircleUserIcon, MenuIcon } from "lucide-react";
-import { Logo } from "~/components/logo";
-import { Button, buttonVariants } from "~/components/ui/button";
+} from '@remix-run/react'
+import { CircleUserIcon, MenuIcon } from 'lucide-react'
+import { Logo } from '~/components/logo'
+import { Button, buttonVariants } from '~/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,15 +17,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
-import { cx } from "~/utils/misc";
-import { useOptionalUser } from "~/utils/user";
+} from '~/components/ui/dropdown-menu'
+import { Sheet, SheetContent, SheetTrigger } from '~/components/ui/sheet'
+import { cx } from '~/utils/misc'
+import { useOptionalUser } from '~/utils/user'
 
 export default function Component() {
-  const user = useOptionalUser();
+  const user = useOptionalUser()
 
-  const navigation = getNavigationItems(user);
+  const navigation = getNavigationItems(user)
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -39,10 +39,10 @@ export default function Component() {
               end
               className={({ isActive }) =>
                 cx(
-                  "text-sm font-medium",
+                  'text-sm font-medium',
                   isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground transition-colors hover:text-foreground",
+                    ? 'text-foreground'
+                    : 'text-muted-foreground transition-colors hover:text-foreground',
                 )
               }
             >
@@ -70,10 +70,10 @@ export default function Component() {
                   to={item.to}
                   className={({ isActive }) =>
                     cx(
-                      "text-lg font-medium",
+                      'text-lg font-medium',
                       isActive
-                        ? "text-foreground"
-                        : "text-muted-foreground transition-colors hover:text-foreground",
+                        ? 'text-foreground'
+                        : 'text-muted-foreground transition-colors hover:text-foreground',
                     )
                   }
                 >
@@ -89,7 +89,7 @@ export default function Component() {
           ) : (
             <Link
               to="/login"
-              className={buttonVariants({ variant: "secondary" })}
+              className={buttonVariants({ variant: 'secondary' })}
             >
               Sign in
             </Link>
@@ -102,36 +102,36 @@ export default function Component() {
         </div>
       </main>
     </div>
-  );
+  )
 }
 
-function getNavigationItems(user: Pick<User, "username"> | null) {
-  const navigation: Array<{ name: string; to: NavLinkProps["to"] }> = [
-    { name: "Discover", to: "/users" },
-  ];
+function getNavigationItems(user: Pick<User, 'username'> | null) {
+  const navigation: Array<{ name: string; to: NavLinkProps['to'] }> = [
+    { name: 'Discover', to: '/users' },
+  ]
 
   if (user) {
-    navigation.unshift({ name: "Dashboard", to: `/users/${user.username}` });
+    navigation.unshift({ name: 'Dashboard', to: `/users/${user.username}` })
   }
 
-  return navigation;
+  return navigation
 }
 
 function UserDropdown({
   user,
 }: {
-  user: Pick<User, "username" | "first" | "last" | "email">;
+  user: Pick<User, 'username' | 'first' | 'last' | 'email'>
 }) {
-  const submit = useSubmit();
-  const revalidator = useRevalidator();
+  const submit = useSubmit()
+  const revalidator = useRevalidator()
   function signOut() {
     submit(null, {
-      method: "post",
-      action: "/logout",
+      method: 'post',
+      action: '/logout',
       // Force flush any updates to ensure that the DOM is updated immediately.
       unstable_flushSync: true,
-    });
-    revalidator.revalidate();
+    })
+    revalidator.revalidate()
   }
 
   return (
@@ -157,5 +157,5 @@ function UserDropdown({
         <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

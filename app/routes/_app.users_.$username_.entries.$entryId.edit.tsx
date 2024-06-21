@@ -1,36 +1,36 @@
-import { invariantResponse } from "@epic-web/invariant";
+import { invariantResponse } from '@epic-web/invariant'
 import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
   MetaFunction,
-} from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
-import { Form, Link, useLoaderData } from "@remix-run/react";
-import { ChevronLeftIcon, Trash2Icon } from "lucide-react";
-import { GeneralErrorBoundary } from "~/components/error-boundary";
+} from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
+import { Form, Link, useLoaderData } from '@remix-run/react'
+import { ChevronLeftIcon, Trash2Icon } from 'lucide-react'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
-} from "~/components/ui/breadcrumb";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { requireUserId } from "~/utils/auth.server";
-import { prisma } from "~/utils/db.server";
-import { EntryEditor } from "./resources.entry-editor";
+} from '~/components/ui/breadcrumb'
+import { Button } from '~/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { requireUserId } from '~/utils/auth.server'
+import { prisma } from '~/utils/db.server'
+import { EntryEditor } from './resources.entry-editor'
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ title: data ? "Edit entry" : "Not Found" }];
-};
+  return [{ title: data ? 'Edit entry' : 'Not Found' }]
+}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
-  const userId = await requireUserId(request);
+  const userId = await requireUserId(request)
 
   invariantResponse(
     params.entryId,
-    `Invalid entryId: ${params.entryId ?? "Missing"}`,
-  );
+    `Invalid entryId: ${params.entryId ?? 'Missing'}`,
+  )
   const entry = await prisma.entry.findUnique({
     select: {
       id: true,
@@ -41,55 +41,55 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
       link: true,
     },
     where: { id: params.entryId, userId },
-  });
+  })
   invariantResponse(entry, `No entry with the id "${params.entryId}" exists`, {
     status: 404,
-  });
+  })
 
-  return json({ entry });
+  return json({ entry })
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const formData = await request.formData();
+  const formData = await request.formData()
 
-  if (formData.get("intent") === "deleteEntry") {
-    const userId = await requireUserId(request);
+  if (formData.get('intent') === 'deleteEntry') {
+    const userId = await requireUserId(request)
 
     invariantResponse(
       params.entryId,
-      `Invalid entryId: ${params.entryId ?? "Missing"}`,
-    );
+      `Invalid entryId: ${params.entryId ?? 'Missing'}`,
+    )
 
     const entry = await prisma.entry.findUnique({
       select: { id: true },
       where: { id: params.entryId, userId },
-    });
+    })
     invariantResponse(
       entry,
       `No entry with the id "${params.entryId}" exists`,
       { status: 404 },
-    );
+    )
 
     await prisma.entry.delete({
       select: { id: true },
       where: { id: entry.id, userId },
-    });
+    })
 
-    return redirect("/me");
+    return redirect('/me')
   }
 
   invariantResponse(
     false,
-    `Invalid intent: ${formData.get("intent") ?? "Missing"}`,
-  );
+    `Invalid intent: ${formData.get('intent') ?? 'Missing'}`,
+  )
 }
 
 export function ErrorBoundary() {
-  return <GeneralErrorBoundary />;
+  return <GeneralErrorBoundary />
 }
 
 export default function Component() {
-  const { entry } = useLoaderData<typeof loader>();
+  const { entry } = useLoaderData<typeof loader>()
 
   return (
     <div className="grid gap-3">
@@ -116,11 +116,11 @@ export default function Component() {
         method="POST"
         onSubmit={(event) => {
           const shouldDelete = confirm(
-            "Please confirm you want to delete this record.",
-          );
+            'Please confirm you want to delete this record.',
+          )
 
           if (!shouldDelete) {
-            event.preventDefault();
+            event.preventDefault()
           }
         }}
         className="mt-4"
@@ -132,5 +132,5 @@ export default function Component() {
         </Button>
       </Form>
     </div>
-  );
+  )
 }

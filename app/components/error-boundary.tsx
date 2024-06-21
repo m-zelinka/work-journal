@@ -1,13 +1,11 @@
-"use client";
-
-import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
-import { TriangleAlertIcon } from "lucide-react";
+import { isRouteErrorResponse, useRouteError } from '@remix-run/react'
+import { TriangleAlertIcon } from 'lucide-react'
 
 export function GeneralErrorBoundary() {
-  const error = useRouteError();
+  const error = useRouteError()
   const errorMessage = isRouteErrorResponse(error)
     ? error.data
-    : getErrorMessage(error);
+    : getErrorMessage(error)
 
   return (
     <div className="flex flex-col items-center gap-1 text-center">
@@ -19,24 +17,24 @@ export function GeneralErrorBoundary() {
       </h3>
       <p className="text-sm text-muted-foreground">{errorMessage}</p>
     </div>
-  );
+  )
 }
 
 function getErrorMessage(error: unknown) {
-  if (typeof error === "string") {
-    return error;
+  if (typeof error === 'string') {
+    return error
   }
 
   if (
     error &&
-    typeof error === "object" &&
-    "message" in error &&
-    typeof error.message === "string"
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof error.message === 'string'
   ) {
-    return error.message;
+    return error.message
   }
 
-  console.error("Unable to get error message for error", error);
+  console.error('Unable to get error message for error', error)
 
-  return "Unknown Error";
+  return 'Unknown Error'
 }

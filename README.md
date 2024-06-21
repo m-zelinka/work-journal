@@ -20,7 +20,7 @@ This project is a simple work journaling app, for daily logging of learnings and
 
    - Copy the template contents in [.env.example](.env.example) to a new file named `.env` and fill all the required fields.
 
-5. Run the application in dev mode:
+4. Run the application in dev mode:
 
    ```sh
    npm run dev

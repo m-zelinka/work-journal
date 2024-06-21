@@ -2,52 +2,52 @@ import {
   json,
   type LoaderFunctionArgs,
   type MetaFunction,
-} from "@remix-run/node";
+} from '@remix-run/node'
 import {
   Form,
   Link,
   useLoaderData,
   useNavigation,
   useSearchParams,
-} from "@remix-run/react";
-import { format, formatISO } from "date-fns";
-import { RefreshCcwIcon, SearchIcon } from "lucide-react";
-import { matchSorter } from "match-sorter";
-import { useEffect, useRef } from "react";
-import sortBy from "sort-by";
-import { useSpinDelay } from "spin-delay";
-import { Empty } from "~/components/empty";
-import { Badge } from "~/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { prisma } from "~/utils/db.server";
-import { useOptionalUser } from "~/utils/user";
+} from '@remix-run/react'
+import { format, formatISO } from 'date-fns'
+import { RefreshCcwIcon, SearchIcon } from 'lucide-react'
+import { matchSorter } from 'match-sorter'
+import { useEffect, useRef } from 'react'
+import sortBy from 'sort-by'
+import { useSpinDelay } from 'spin-delay'
+import { Empty } from '~/components/empty'
+import { Badge } from '~/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Input } from '~/components/ui/input'
+import { prisma } from '~/utils/db.server'
+import { useOptionalUser } from '~/utils/user'
 
 export const meta: MetaFunction = () => {
-  return [{ title: "Discover" }];
-};
+  return [{ title: 'Discover' }]
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
-  const url = new URL(request.url);
-  const q = url.searchParams.get("q");
+  const url = new URL(request.url)
+  const q = url.searchParams.get('q')
 
   let users = await prisma.user.findMany({
     select: { username: true, first: true, last: true, createdAt: true },
-  });
+  })
 
   if (q) {
-    users = matchSorter(users, q, { keys: ["username", "first", "last"] });
+    users = matchSorter(users, q, { keys: ['username', 'first', 'last'] })
   }
 
-  users = users.sort(sortBy("createdAt"));
+  users = users.sort(sortBy('createdAt'))
 
-  return json({ users });
+  return json({ users })
 }
 
 export default function Component() {
-  const { users } = useLoaderData<typeof loader>();
+  const { users } = useLoaderData<typeof loader>()
 
-  const user = useOptionalUser();
+  const user = useOptionalUser()
 
   return (
     <Card>
@@ -65,7 +65,7 @@ export default function Component() {
         {users.length ? (
           <ul className="grid gap-8">
             {users.map((userAccount) => {
-              const isSignedInUser = user?.username === userAccount.username;
+              const isSignedInUser = user?.username === userAccount.username
 
               return (
                 <div
@@ -75,7 +75,7 @@ export default function Component() {
                   <div className="grid gap-1">
                     <div className="flex items-center gap-3">
                       <p className="text-sm font-medium leading-none">
-                        {`${userAccount.first} ${userAccount.last}`}{" "}
+                        {`${userAccount.first} ${userAccount.last}`}{' '}
                         <span className="font-normal text-muted-foreground">
                           ({userAccount.username})
                         </span>
@@ -87,9 +87,9 @@ export default function Component() {
                       ) : null}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Joined{" "}
+                      Joined{' '}
                       <time dateTime={formatISO(userAccount.createdAt)}>
-                        {format(userAccount.createdAt, "PP")}
+                        {format(userAccount.createdAt, 'PP')}
                       </time>
                     </p>
                   </div>
@@ -100,7 +100,7 @@ export default function Component() {
                     View
                   </Link>
                 </div>
-              );
+              )
             })}
           </ul>
         ) : (
@@ -111,26 +111,26 @@ export default function Component() {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }
 
 function SearchBar() {
-  const [searchParams] = useSearchParams();
-  const q = searchParams.get("q");
+  const [searchParams] = useSearchParams()
+  const q = searchParams.get('q')
 
-  const navigation = useNavigation();
-  const searching = new URLSearchParams(navigation.location?.search).has("q");
-  const showSpinner = useSpinDelay(searching);
+  const navigation = useNavigation()
+  const searching = new URLSearchParams(navigation.location?.search).has('q')
+  const showSpinner = useSpinDelay(searching)
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // Sync search input value with the URL Search Params
   useEffect(() => {
-    const searchField = inputRef.current;
+    const searchField = inputRef.current
     if (searchField) {
-      searchField.value = q ?? "";
+      searchField.value = q ?? ''
     }
-  }, [q]);
+  }, [q])
 
   return (
     <div className="relative">
@@ -155,5 +155,5 @@ function SearchBar() {
         aria-label="Search users by name or username"
       />
     </div>
-  );
+  )
 }
