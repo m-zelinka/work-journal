@@ -25,7 +25,7 @@ import { useOptionalUser } from '~/utils/user'
 export default function Component() {
   const user = useOptionalUser()
 
-  const navigation = getNavigationItems(user)
+  const navigation = getNavItems(user)
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -105,7 +105,7 @@ export default function Component() {
   )
 }
 
-function getNavigationItems(user: Pick<User, 'username'> | null) {
+function getNavItems(user: Pick<User, 'username'> | null) {
   const navigation: Array<{ name: string; to: NavLinkProps['to'] }> = [
     { name: 'Discover', to: '/users' },
   ]
