@@ -11,6 +11,7 @@ import {
   ScrollRestoration,
 } from '@remix-run/react'
 import type { ReactNode } from 'react'
+import { TooltipProvider } from './components/ui/tooltip'
 import fontStyleSheetUrl from './styles/font.css?url'
 import tailwindStyleSheetUrl from './styles/tailwind.css?url'
 import { getUser } from './utils/auth.server'
@@ -42,7 +43,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body className="h-full">
-        {children}
+        <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

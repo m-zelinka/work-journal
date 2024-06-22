@@ -50,39 +50,9 @@ export default function Component() {
             </NavLink>
           ))}
         </nav>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="shrink-0 md:hidden"
-            >
-              <MenuIcon className="size-5" />
-              <span className="sr-only">Toggle navigation menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <nav className="grid gap-6">
-              <Logo className="h-6 w-auto" />
-              {navigation.map((item) => (
-                <NavLink
-                  key={item.name}
-                  to={item.to}
-                  className={({ isActive }) =>
-                    cx(
-                      'text-lg font-medium',
-                      isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground transition-colors hover:text-foreground',
-                    )
-                  }
-                >
-                  {item.name}
-                </NavLink>
-              ))}
-            </nav>
-          </SheetContent>
-        </Sheet>
+        <div className="flex-none md:hidden">
+          <MobileNav navigation={navigation} />
+        </div>
         <div className="flex w-full items-center justify-end">
           {user ? (
             <UserDropdown user={user} />
@@ -96,12 +66,50 @@ export default function Component() {
           )}
         </div>
       </header>
-      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 p-4 md:gap-8 md:p-10">
+      <main className="flex min-h-[calc(100vh_-_theme(spacing.16))] flex-1 flex-col gap-4 bg-muted/40 p-4 md:gap-8 md:p-10">
         <div className="mx-auto w-full max-w-3xl flex-1">
           <Outlet />
         </div>
       </main>
     </div>
+  )
+}
+
+function MobileNav({
+  navigation,
+}: {
+  navigation: ReturnType<typeof getNavItems>
+}) {
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" className="rounded-full">
+          <MenuIcon className="size-5" />
+          <span className="sr-only">Toggle navigation menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left">
+        <nav className="grid gap-6">
+          <Logo className="h-6 w-auto" />
+          {navigation.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.to}
+              className={({ isActive }) =>
+                cx(
+                  'text-lg font-medium',
+                  isActive
+                    ? 'text-foreground'
+                    : 'text-muted-foreground transition-colors hover:text-foreground',
+                )
+              }
+            >
+              {item.name}
+            </NavLink>
+          ))}
+        </nav>
+      </SheetContent>
+    </Sheet>
   )
 }
 
@@ -137,7 +145,7 @@ function UserDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="secondary" size="icon" className="rounded-full">
+        <Button variant="ghost" size="icon" className="rounded-full">
           <CircleUserIcon className="size-5" />
           <span className="sr-only">Toggle user menu</span>
         </Button>

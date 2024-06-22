@@ -128,7 +128,7 @@ export default function Component() {
       ) : (
         <div className="grid gap-1">
           <h1 className="text-xl font-semibold tracking-tight">
-            {`${owner.first} ${owner.last}`}&apos;s Entries
+            {`${owner.first} ${owner.last}`}&apos;s journal
           </h1>
           <p className="text-sm text-muted-foreground">
             Joined{' '}
@@ -138,20 +138,25 @@ export default function Component() {
           </p>
         </div>
       )}
-      <div className="mt-8">
-        {ownerEntries.length ? (
-          <EntryList entries={ownerEntries} showToolbar={ownerIsSignedIn} />
-        ) : (
-          <Empty
-            title="No entries"
-            description={
-              ownerIsSignedIn
-                ? "You haven't saved any entries yet."
-                : `${owner.first} hasn't saved any entries yet.`
-            }
-          />
-        )}
-      </div>
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Recent entries</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {ownerEntries.length ? (
+            <EntryList entries={ownerEntries} showToolbar={ownerIsSignedIn} />
+          ) : (
+            <Empty
+              title="No entries"
+              description={
+                ownerIsSignedIn
+                  ? "You haven't saved any entries yet."
+                  : `${owner.first} hasn't saved any journal entries yet.`
+              }
+            />
+          )}
+        </CardContent>
+      </Card>
     </>
   )
 }
@@ -242,12 +247,12 @@ function EntryList({
         <li key={week.dateString} className="relative flex gap-4">
           <div
             className={cx(
-              weekIndex === weeks.length - 1 ? 'h-0' : '-bottom-6',
+              weekIndex === weeks.length - 1 ? 'h-6' : '-bottom-6',
               'absolute left-0 top-0 flex w-6 justify-center',
             )}
             aria-hidden
           >
-            <div className="w-px border-l" />
+            <div className="w-px bg-border" />
           </div>
           <div
             className="relative flex size-6 flex-none items-center justify-center bg-background"
@@ -256,7 +261,7 @@ function EntryList({
             <div className="size-1.5 rounded-full border border-muted-foreground" />
           </div>
           <div className="flex-auto py-0.5">
-            <p className="text-sm font-semibold">
+            <p className="text-sm font-semibold text-primary">
               Week of {format(week.dateString, 'MMMM d, yyyy')}
             </p>
             {Object.entries(week.sections).map(([title, entries]) =>

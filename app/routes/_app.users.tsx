@@ -12,15 +12,21 @@ import {
   useSearchParams,
 } from '@remix-run/react'
 import { format, formatISO } from 'date-fns'
-import { RefreshCcwIcon, SearchIcon } from 'lucide-react'
+import { EyeIcon, RefreshCcwIcon, SearchIcon } from 'lucide-react'
 import { matchSorter } from 'match-sorter'
 import { useEffect, useRef } from 'react'
 import sortBy from 'sort-by'
 import { useSpinDelay } from 'spin-delay'
 import { Empty } from '~/components/empty'
 import { Badge } from '~/components/ui/badge'
+import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '~/components/ui/tooltip'
 import { prisma } from '~/utils/db.server'
 import { useOptionalUser } from '~/utils/user'
 
@@ -71,7 +77,7 @@ export default function Component() {
               return (
                 <div
                   key={userAccount.username}
-                  className="flex items-center gap-4"
+                  className="group flex items-center gap-4"
                 >
                   <div className="grid gap-1">
                     <div className="flex items-center gap-3">
@@ -94,12 +100,19 @@ export default function Component() {
                       </time>
                     </p>
                   </div>
-                  <Link
-                    to={`/users/${userAccount.username}`}
-                    className="ml-auto font-medium"
-                  >
-                    View
-                  </Link>
+                  <div className="ml-auto flex gap-3 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button asChild variant="ghost" size="icon">
+                          <Link to={`/users/${userAccount.username}`}>
+                            <EyeIcon className="size-5" />
+                            <span className="sr-only">View</span>
+                          </Link>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>View profile</TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               )
             })}
