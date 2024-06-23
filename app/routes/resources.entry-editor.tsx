@@ -175,7 +175,7 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
         },
       )
 
-      clearFormInputs()
+      resetFormValues()
     },
   })
 
@@ -185,7 +185,7 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
   const textRef = useRef<HTMLTextAreaElement>(null)
   const linkRef = useRef<HTMLInputElement>(null)
 
-  const clearFormInputs = () => {
+  const resetFormValues = () => {
     if (textRef.current) {
       textRef.current.value = ''
       textRef.current.focus()
