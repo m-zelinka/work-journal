@@ -169,7 +169,7 @@ function EntrySavingIndicator() {
     return null
   }
 
-  return <CloudIcon className="size-5 animate-pulse text-gray-400" />
+  return <CloudIcon className="size-4 animate-pulse text-gray-400" />
 }
 
 function usePendingEntries() {

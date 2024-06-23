@@ -127,7 +127,7 @@ export default function Component() {
       >
         <input type="hidden" name="intent" value="deleteEntry" />
         <Button type="submit" variant="destructive" size="sm">
-          <Trash2Icon className="mr-2 size-4" />
+          <Trash2Icon className="mr-1.5 size-4" />
           Delete this entry…
         </Button>
       </Form>
