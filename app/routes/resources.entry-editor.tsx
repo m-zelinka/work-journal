@@ -12,6 +12,7 @@ import { Form, useActionData, useNavigation, useSubmit } from '@remix-run/react'
 import { format } from 'date-fns'
 import { LinkIcon } from 'lucide-react'
 import { useRef } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { z } from 'zod'
 import { Button } from '~/components//ui/button'
 import { Input } from '~/components//ui/input'
@@ -26,7 +27,7 @@ import {
   SelectValue,
 } from '~/components//ui/select'
 import { Textarea } from '~/components//ui/textarea'
-import { ErrorList } from '~/components/forms'
+import { Description, ErrorList } from '~/components/forms'
 import { requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import type { Entry } from './_app.users_.$username'
@@ -127,7 +128,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export function EntryEditor({ entry }: { entry?: Entry }) {
-  const inEditMode = Boolean(entry)
+  const editMode = Boolean(entry)
 
   const actionData = useActionData<typeof action>()
 
@@ -146,7 +147,7 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
     shouldRevalidate: 'onInput',
     onValidate: ({ formData }) => parseWithZod(formData, { schema }),
     onSubmit: (event, context) => {
-      if (inEditMode) {
+      if (editMode) {
         return
       }
 
@@ -179,10 +180,11 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
   })
 
   const navigation = useNavigation()
-  const savingEdit = navigation.formData?.get('intent') === 'editEntry'
+  const updating = navigation.formData?.get('intent') === 'editEntry'
 
   const textRef = useRef<HTMLTextAreaElement>(null)
   const linkRef = useRef<HTMLInputElement>(null)
+
   const clearFormInputs = () => {
     if (textRef.current) {
       textRef.current.value = ''
@@ -194,13 +196,27 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
     }
   }
 
+  // Focus input on key press
+  const keyShortcut = 'r'
+  useHotkeys(
+    keyShortcut,
+    () => {
+      const textarea = textRef.current
+      if (textarea) {
+        textarea.focus()
+        textarea.select()
+      }
+    },
+    { preventDefault: true },
+  )
+
   return (
     <Form
       method="POST"
       action="/resources/entry-editor"
       {...getFormProps(form)}
     >
-      {inEditMode ? (
+      {editMode ? (
         <>
           <input type="hidden" name="intent" value="editEntry" />
           <input {...getInputProps(fields.id, { type: 'hidden' })} />
@@ -281,9 +297,15 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
               }
             }}
             className="min-h-24 resize-none"
-            placeholder={inEditMode ? undefined : 'What would you like to add?'}
-            {...getTextareaProps(fields.text)}
+            placeholder={editMode ? undefined : 'What would you like to add?'}
+            aria-keyshortcuts={keyShortcut}
+            {...getTextareaProps(fields.text, {
+              ariaDescribedBy: `${fields.text.id}-description`,
+            })}
           />
+          <Description id={`${fields.text.id}-description`} className="-mt-1">
+            Press (r) to focus.
+          </Description>
           <ErrorList id={fields.text.errorId} errors={fields.text.errors} />
         </div>
         <div className="grid gap-2 md:col-span-full">
@@ -305,8 +327,8 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
           <ErrorList id={form.errorId} errors={form.errors} />
         </div>
         <div className="md:col-span-full">
-          <Button type="submit" disabled={savingEdit} className="w-full">
-            {savingEdit ? 'Saving...' : 'Save'}
+          <Button type="submit" disabled={updating} className="w-full">
+            {updating ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </div>
