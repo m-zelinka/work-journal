@@ -3,7 +3,7 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cva, cx, type VariantProps } from '~/utils/misc'
 
 export const buttonVariants = cva({
-  base: 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
+  base: 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
   variants: {
     variant: {
       default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90',
