@@ -12,7 +12,7 @@ export default function Component() {
   const user = useOptionalUser()
 
   return (
-    <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="flex min-h-full flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-2xl">
         <Logo className="mx-auto h-11 w-auto" />
         <div className="text-center">
@@ -23,9 +23,9 @@ export default function Component() {
             Your new daily work journal, helping clear your head.
           </p>
         </div>
-        <div className="mt-10">
+        <div className="mt-10 flex items-start justify-center gap-4">
           {user ? (
-            <div className="flex flex-col items-center gap-2">
+            <div className="grid place-items-center gap-1">
               <Link to="/me" className={buttonVariants()}>
                 <span>
                   Continue to dashboard <span aria-hidden>→</span>
@@ -39,20 +39,23 @@ export default function Component() {
               </p>
             </div>
           ) : (
-            <div className="flex justify-center gap-4">
+            <>
               <Link to="/join" className={buttonVariants()}>
                 Get started
               </Link>
               <Link
                 to="/login"
-                className={buttonVariants({ variant: 'ghost' })}
+                className={buttonVariants({ variant: 'secondary' })}
               >
                 <span>
                   Log in <span aria-hidden>→</span>
                 </span>
               </Link>
-            </div>
+            </>
           )}
+          <Link to="/users" className={buttonVariants({ variant: 'outline' })}>
+            Discover
+          </Link>
         </div>
       </div>
     </div>
