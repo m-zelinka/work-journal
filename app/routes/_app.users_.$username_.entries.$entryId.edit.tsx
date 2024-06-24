@@ -93,7 +93,7 @@ export default function Component() {
 
   return (
     <div className="grid gap-3">
-      <Breadcrumb>
+      <Breadcrumb aria-label="Back">
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
@@ -123,7 +123,7 @@ export default function Component() {
             event.preventDefault()
           }
         }}
-        className="mt-4"
+        className="mt-6"
       >
         <input type="hidden" name="intent" value="deleteEntry" />
         <Button type="submit" variant="destructive" size="sm">

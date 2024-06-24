@@ -10,9 +10,7 @@ import { cx } from '~/utils/misc'
 
 export const Breadcrumb = forwardRef<
   HTMLElement,
-  ComponentPropsWithoutRef<'nav'> & {
-    separator?: ReactNode
-  }
+  ComponentPropsWithoutRef<'nav'> & { separator?: ReactNode }
 >(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />)
 Breadcrumb.displayName = 'Breadcrumb'
 
@@ -45,9 +43,7 @@ BreadcrumbItem.displayName = 'BreadcrumbItem'
 
 export const BreadcrumbLink = forwardRef<
   HTMLAnchorElement,
-  ComponentPropsWithoutRef<'a'> & {
-    asChild?: boolean
-  }
+  ComponentPropsWithoutRef<'a'> & { asChild?: boolean }
 >(({ asChild, className, ...props }, ref) => {
   const Comp = asChild ? Slot : 'a'
 
@@ -84,8 +80,8 @@ export function BreadcrumbSeparator({
   return (
     <li
       role="presentation"
-      aria-hidden="true"
       className={cx('[&>svg]:size-3.5', className)}
+      aria-hidden
       {...props}
     >
       {children ?? <ChevronRightIcon />}
@@ -101,8 +97,8 @@ export function BreadcrumbEllipsis({
   return (
     <span
       role="presentation"
-      aria-hidden="true"
       className={cx('flex size-9 items-center justify-center', className)}
+      aria-hidden
       {...props}
     >
       <EllipsisVertical className="size-4" />

@@ -13,6 +13,7 @@ import { format } from 'date-fns'
 import { LinkIcon } from 'lucide-react'
 import { useRef } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useSpinDelay } from 'spin-delay'
 import { z } from 'zod'
 import { Button } from '~/components//ui/button'
 import { Input } from '~/components//ui/input'
@@ -132,7 +133,12 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
 
   const actionData = useActionData<typeof action>()
 
+  // Used to optimistically submit the form
   const submit = useSubmit()
+
+  const navigation = useNavigation()
+  const updating = navigation.formData?.get('intent') === 'editEntry'
+  const showUpdatingState = useSpinDelay(updating)
 
   const [form, fields] = useForm({
     defaultValue: {
@@ -178,9 +184,6 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
       resetFormValues()
     },
   })
-
-  const navigation = useNavigation()
-  const updating = navigation.formData?.get('intent') === 'editEntry'
 
   const textRef = useRef<HTMLTextAreaElement>(null)
   const linkRef = useRef<HTMLInputElement>(null)
@@ -327,8 +330,8 @@ export function EntryEditor({ entry }: { entry?: Entry }) {
           <ErrorList id={form.errorId} errors={form.errors} />
         </div>
         <div className="md:col-span-full">
-          <Button type="submit" disabled={updating} className="w-full">
-            {updating ? 'Saving...' : 'Save'}
+          <Button type="submit" disabled={showUpdatingState} className="w-full">
+            {showUpdatingState ? 'Saving...' : 'Save'}
           </Button>
         </div>
       </div>
