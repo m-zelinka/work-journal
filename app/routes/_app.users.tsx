@@ -19,7 +19,7 @@ import sortBy from 'sort-by'
 import { useSpinDelay } from 'spin-delay'
 import { Empty } from '~/components/empty'
 import { Badge } from '~/components/ui/badge'
-import { Button } from '~/components/ui/button'
+import { Button, buttonVariants } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import {
@@ -57,74 +57,89 @@ export default function Component() {
   const user = useOptionalUser()
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Discover users</CardTitle>
-          <search role="search">
-            <Form>
-              <SearchBar />
-            </Form>
-          </search>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {users.length ? (
-          <ul className="grid gap-8">
-            {users.map((userAccount) => {
-              const isSignedInUser = user?.username === userAccount.username
+    <>
+      <h1 className="sr-only">Discover users</h1>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Recent users</CardTitle>
+            <search role="search">
+              <Form>
+                <SearchBar />
+              </Form>
+            </search>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {users.length ? (
+            <ul className="grid gap-8">
+              {users.map((account) => {
+                const userIsAccountOwner = user?.username === account.username
 
-              return (
-                <div
-                  key={userAccount.username}
-                  className="group flex items-center gap-4"
-                >
-                  <div className="grid gap-1">
-                    <div className="flex items-center gap-3">
-                      <p className="text-sm font-medium leading-none">
-                        {`${userAccount.first} ${userAccount.last}`}{' '}
-                        <span className="font-normal text-muted-foreground">
-                          ({userAccount.username})
-                        </span>
+                return (
+                  <div
+                    key={account.username}
+                    className="group flex items-center gap-4"
+                  >
+                    <div className="grid gap-1">
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm font-medium leading-none">
+                          {`${account.first} ${account.last}`}{' '}
+                          <span className="font-normal text-muted-foreground">
+                            ({account.username})
+                          </span>
+                        </p>
+                        {userIsAccountOwner ? (
+                          <Badge className="-my-1" variant="secondary">
+                            Your account
+                          </Badge>
+                        ) : null}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Joined{' '}
+                        <time dateTime={formatISO(account.createdAt)}>
+                          {format(account.createdAt, 'PP')}
+                        </time>
                       </p>
-                      {isSignedInUser ? (
-                        <Badge className="-my-1" variant="secondary">
-                          Your account
-                        </Badge>
-                      ) : null}
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Joined{' '}
-                      <time dateTime={formatISO(userAccount.createdAt)}>
-                        {format(userAccount.createdAt, 'PP')}
-                      </time>
-                    </p>
+                    <div className="ml-auto flex gap-3 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button asChild variant="ghost" size="icon">
+                            <Link to={`/users/${account.username}`}>
+                              <EyeIcon className="size-5" />
+                              <span className="sr-only">View</span>
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>View profile</TooltipContent>
+                      </Tooltip>
+                    </div>
                   </div>
-                  <div className="ml-auto flex gap-3 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button asChild variant="ghost" size="icon">
-                          <Link to={`/users/${userAccount.username}`}>
-                            <EyeIcon className="size-5" />
-                            <span className="sr-only">View</span>
-                          </Link>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>View profile</TooltipContent>
-                    </Tooltip>
-                  </div>
-                </div>
-              )
-            })}
-          </ul>
-        ) : (
+                )
+              })}
+            </ul>
+          ) : (
+            <Empty
+              title="No users found"
+              description="We couldn’t find anything with that term. Please try again."
+            />
+          )}
+        </CardContent>
+      </Card>
+      {!user ? (
+        <div className="mt-8">
           <Empty
-            title="No users found"
-            description="We couldn’t find anything with that term. Please try again."
-          />
-        )}
-      </CardContent>
-    </Card>
+            title="Ready to join us?"
+            description="Create an account to organize your learnings and doings"
+          >
+            <Link to="/join" className={buttonVariants()}>
+              Get started
+            </Link>
+          </Empty>
+        </div>
+      ) : null}
+    </>
   )
 }
 
